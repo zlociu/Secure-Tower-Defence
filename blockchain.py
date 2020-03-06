@@ -9,14 +9,15 @@ from flask import Flask, request
 import requests
 
 class Block:
-    """
-    Constuctor
-    # index = ID of block
-    # timestamp = time of adding block
-    # previous_hash = hash of previous block (first don't have)
-    # nonce = random value used once
-    """
+    
     def __init__(self, index, timestamp, previous_hash, transactions, nonce=0):
+        """
+        Constuctor of Block class.
+        # index = ID of block.
+        # timestamp = time of adding block.
+        # previous_hash = hash of previous block (first don't have).
+        # nonce = random value used once.
+        """
         self.index = index
         self.timestamp = timestamp
         self.previous_hash = previous_hash
@@ -32,22 +33,22 @@ class Block:
 
 
 class Blockchain:
-    # difficulty of our PoW algorithm
+    # difficulty of our PoW (Proof of Work) algorithm
     difficulty = 2
 
     def __init__(self):
         self.unconfirmed_transactions = []
         self.chain = []
 
-    def create_genesis_block(self):
+    def create_first_block(self):
         """
-        A function to generate genesis block and appends it to
+        A function to generate first block and appends it to
         the chain. The block has index 0, previous_hash as 0, and
         a valid hash.
         """
-        genesis_block = Block(0, [], 0, "0")
-        genesis_block.hash = genesis_block.compute_hash()
-        self.chain.append(genesis_block)
+        first_block = Block(0, [], 0, "0")
+        first_block.hash = first_block.compute_hash()
+        self.chain.append(first_block)
 
     @property
     def last_block(self):
@@ -148,7 +149,7 @@ app = Flask(__name__)
 
 # the node's copy of blockchain
 blockchain = Blockchain()
-blockchain.create_genesis_block()
+blockchain.create_first_block()
 
 # the address to other participating members of the network
 peers = set()
@@ -251,10 +252,10 @@ def register_with_existing_node():
 
 def create_chain_from_dump(chain_dump):
     generated_blockchain = Blockchain()
-    generated_blockchain.create_genesis_block()
+    generated_blockchain.create_first_block()
     for idx, block_data in enumerate(chain_dump):
         if idx == 0:
-            continue  # skip genesis block
+            continue  # skip first block
         block = Block(block_data["index"],
                       block_data["transactions"],
                       block_data["timestamp"],
