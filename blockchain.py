@@ -1,12 +1,25 @@
-print("Blockchain app")
-print("Testing github")
-
 from hashlib import sha256
 import json
 import time
+import player
 
-from flask import Flask, request
-import requests
+#from flask import Flask, request
+#import requests
+
+class Transaction:
+
+    def __init__(self, player):
+        self.player = player.playerJSON()
+    
+    def transactionJSON(self):
+        trString = json.dumps(self.__dict__, sort_keys=True)
+        return trString
+    
+    def compute_hash(self):
+        tr_string = self.transactionJSON()
+        return sha256(tr_string.encode()).hexdigest()
+
+
 
 class Block:
     
@@ -46,15 +59,20 @@ class Blockchain:
         the chain. The block has index 0, previous_hash as 0, and
         a valid hash.
         """
-        first_block = Block(0, [], 0, "0")
+        first_block = Block(0, time.time(), 0, [])
         first_block.hash = first_block.compute_hash()
+        first_block.numTransactions = 0
         self.chain.append(first_block)
 
     @property
     def last_block(self):
         return self.chain[-1]
 
-    def add_block(self, block, proof):
+    @property
+    def chainLenght(self):
+        return len(self.chain)  
+
+    def addBlock(self, block, proof):
         """
         A function that adds the block to the chain after verification.
         Verification includes:
@@ -67,7 +85,7 @@ class Blockchain:
         if previous_hash != block.previous_hash:
             return False
 
-        if not Blockchain.is_valid_proof(block, proof):
+        if not Blockchain.isValidProof(block, proof):
             return False
 
         block.hash = proof
@@ -75,7 +93,7 @@ class Blockchain:
         return True
 
     @staticmethod
-    def proof_of_work(block):
+    def proofOfWork(block):
         """
         Function that tries different values of nonce to get a hash
         that satisfies our difficulty criteria.
@@ -93,7 +111,7 @@ class Blockchain:
         self.unconfirmed_transactions.append(transaction)
 
     @classmethod
-    def is_valid_proof(cls, block, block_hash):
+    def isValidProof(cls, block, block_hash):
         """
         Check if block_hash is valid hash of block and satisfies
         the difficulty criteria.
@@ -112,7 +130,7 @@ class Blockchain:
             # using `compute_hash` method.
             delattr(block, "hash")
 
-            if not cls.is_valid_proof(block, block_hash) or \
+            if not cls.isValidProof(block, block_hash) or \
                     previous_hash != block.previous_hash:
                 result = False
                 break
@@ -131,21 +149,48 @@ class Blockchain:
             return False
 
         last_block = self.last_block
-
         new_block = Block(index=last_block.index + 1,
-                          transactions=self.unconfirmed_transactions,
-                          timestamp=time.time(),
-                          previous_hash=last_block.hash)
+                        transactions=self.unconfirmed_transactions,
+                        timestamp=time.time(),
+                        previous_hash=last_block.hash)
 
-        proof = self.proof_of_work(new_block)
-        self.add_block(new_block, proof)
+        new_block.numTransactions = len(self.unconfirmed_transactions)
+        proof = self.proofOfWork(new_block)
+        self.addBlock(new_block, proof)
 
         self.unconfirmed_transactions = []
 
         return True
 
 
-app = Flask(__name__)
+g1 = player.Player("3", "zlociu", player.Player.hashPassword("0x123456"),"7")
+g2 = player.Player("5", "zlociu", player.Player.hashPassword("qwerty"), "11")
+g3 = player.Player("7", "aoxter", player.Player.hashPassword("pplubipp"), "19")
+
+t1 = Transaction(g1)
+t2 = Transaction(g2)
+t3 = Transaction(g3)
+t1.hash = t1.compute_hash()
+t2.hash = t2.compute_hash()
+t3.hash = t3.compute_hash()
+
+blockchain = Blockchain()
+blockchain.create_first_block()
+blockchain.add_new_transaction(t1.transactionJSON())
+blockchain.add_new_transaction(t2.transactionJSON())
+blockchain.mine()
+blockchain.add_new_transaction(t3.transactionJSON())
+blockchain.mine()
+
+print("Chain lenght: ",blockchain.chainLenght)
+for block in blockchain.chain:
+    #print(block.numTransactions)
+    for tr in block.transactions:
+        print(tr)
+
+
+"""
+#app = Flask(__name__)
 
 # the node's copy of blockchain
 blockchain = Blockchain()
@@ -221,11 +266,11 @@ def register_new_peers():
 
 @app.route('/register_with', methods=['POST'])
 def register_with_existing_node():
-    """
+    "'""
     Internally calls the `register_node` endpoint to
     register current node with the node specified in the
     request, and sync the blockchain as well as peer data.
-    """
+    "'""
     node_address = request.get_json()["node_address"]
     if not node_address:
         return "Invalid data", 400
@@ -262,7 +307,9 @@ def create_chain_from_dump(chain_dump):
                       block_data["previous_hash"],
                       block_data["nonce"])
         proof = block_data['hash']
-        added = generated_blockchain.add_block(block, proof)
+        added = generated_blockchain.addBlock(block, proof)
         if not added:
             raise Exception("The chain dump is tampered!!")
     return generated_blockchain
+*#
+"""
