@@ -3,7 +3,7 @@ import json
 
 class Player:
 
-    def __init__(self, identity, login, passwdHash, pKey):
+    def __init__(self, identity):
         """
         Constructor
         # id = unique number, will be public key
@@ -11,19 +11,12 @@ class Player:
         # password = password hashed with SHA256
         """
         self.identity = identity
-        self.login = login
-        self.password = passwdHash
         self.lvl = 1
         self.points = 0
-        self.privateKey = pKey
-
-    @staticmethod
-    def hashPassword(passwd):
-        return sha256(passwd.encode()).hexdigest()
 
     def description(self):
-        txt = " id: {} \n login: {} \n password: {} \n lvl: {}"
-        return txt.format(self.identity, self.login, self.password, self.lvl)
+        txt = " id: {} \n lvl: {} \n points: {}"
+        return txt.format(self.identity, self.lvl, self.points)
 
 
     def playerJSON(self):

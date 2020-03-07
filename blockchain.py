@@ -1,23 +1,12 @@
 from hashlib import sha256
 import json
 import time
-import player
+import user
+import rsa
+import signedTransaction
 
 #from flask import Flask, request
 #import requests
-
-class Transaction:
-
-    def __init__(self, player):
-        self.player = player.playerJSON()
-    
-    def transactionJSON(self):
-        trString = json.dumps(self.__dict__, sort_keys=True)
-        return trString
-    
-    def compute_hash(self):
-        tr_string = self.transactionJSON()
-        return sha256(tr_string.encode()).hexdigest()
 
 
 
@@ -139,6 +128,14 @@ class Blockchain:
 
         return result
 
+    def verifyEachTransaction(self, pubKey):
+        listVerified = []
+        for t1 in self.unconfirmed_transactions:
+            if 'SHA-256' == user.User.verifyTransaction(pubKey, t1.transaction, t1.sign):
+                listVerified.append(t1)
+
+        return listVerified        
+
     def mine(self):
         """
         This function serves as an interface to add the pending
@@ -162,24 +159,24 @@ class Blockchain:
 
         return True
 
+u1 = user.User("zlociu",user.User.hashPassword("0x123456"))
+print(u1.description())
 
-g1 = player.Player("3", "zlociu", player.Player.hashPassword("0x123456"),"7")
-g2 = player.Player("5", "zlociu", player.Player.hashPassword("qwerty"), "11")
-g3 = player.Player("7", "aoxter", player.Player.hashPassword("pplubipp"), "19")
+p1 = user.player.Player(u1.identity)
+#u1.savePrivateKey()
+#try:
+#    key1 = u1.loadPrivateKey()
+#    print(key1==u1.privateKey)
+#    print()
+#except ValueError:
+#    print("ValueError")
+t1 = user.transaction.Transaction(p1)
 
-t1 = Transaction(g1)
-t2 = Transaction(g2)
-t3 = Transaction(g3)
-t1.hash = t1.compute_hash()
-t2.hash = t2.compute_hash()
-t3.hash = t3.compute_hash()
-
+sign = user.User.singTransaction(u1.privateKey,t1.transactionJSON().encode())
+st1 = signedTransaction.SignedTransaction(t1.transactionJSON(), str(sign))
 blockchain = Blockchain()
 blockchain.create_first_block()
-blockchain.add_new_transaction(t1.transactionJSON())
-blockchain.add_new_transaction(t2.transactionJSON())
-blockchain.mine()
-blockchain.add_new_transaction(t3.transactionJSON())
+blockchain.add_new_transaction(st1.signedTransactionJSON())
 blockchain.mine()
 
 print("Chain lenght: ",blockchain.chainLenght)
