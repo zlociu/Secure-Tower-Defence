@@ -55,11 +55,17 @@ class User:
 
     @staticmethod
     def singTransaction(pKey: rsa.PrivateKey, trans: transaction.Transaction):
+        """
+        returns signature of transaction (in bytes) 
+        """
         signed = rsa.sign(trans, pKey,'SHA-256')
         return signed
 
     @staticmethod
     def verifyTransaction(pKey: rsa.PublicKey, trans: transaction.Transaction, signature):
+        """
+        returns if transaction is sign by the owner
+        """
         return 'SHA-256' == rsa.verify(trans, signature, pKey)
 
     @staticmethod
