@@ -12,7 +12,7 @@ import signedTransaction
 
 class Block:
     
-    def __init__(self, index, timestamp, previous_hash, transactions, nonce=0):
+    def __init__(self, index, timestamp, previous_hash, transactions: signedTransaction.SignedTransaction, nonce=0):
         """
         Constuctor of Block class.
         # index = ID of block.
@@ -39,7 +39,7 @@ class Blockchain:
     difficulty = 2
 
     def __init__(self):
-        self.unconfirmed_transactions = []
+        self.unconfirmed_signed_transactions = []
         self.chain = []
 
     def create_first_block(self):
@@ -96,8 +96,8 @@ class Blockchain:
 
         return computed_hash
 
-    def add_new_transaction(self, transaction):
-        self.unconfirmed_transactions.append(transaction)
+    def add_new_transaction(self, transaction: signedTransaction.SignedTransaction):
+        self.unconfirmed_signed_transactions.append(transaction)
 
     @classmethod
     def isValidProof(cls, block, block_hash):
@@ -128,11 +128,11 @@ class Blockchain:
 
         return result
 
-    def verifyEachTransaction(self, pubKey):
+    def verifyEachTransaction(self, pubKey: rsa.PublicKey):
         listVerified = []
-        for t1 in self.unconfirmed_transactions:
-            if 'SHA-256' == user.User.verifyTransaction(pubKey, t1.transaction, t1.sign):
-                listVerified.append(t1)
+        for tr in self.unconfirmed_signed_transactions:
+            if True == user.User.verifyTransaction(pubKey, tr.transaction.transactionJSON().encode(), tr.sign):
+                listVerified.append(tr.transaction.transactionJSON().encode())
 
         return listVerified        
 
@@ -142,27 +142,28 @@ class Blockchain:
         transactions to the blockchain by adding them to the block
         and figuring out Proof Of Work.
         """
-        if not self.unconfirmed_transactions:
+        if not self.unconfirmed_signed_transactions:
             return False
 
         last_block = self.last_block
+        valid_transactions = self.verifyEachTransaction(u1.publicKey)
         new_block = Block(index=last_block.index + 1,
-                        transactions=self.unconfirmed_transactions,
+                        transactions=valid_transactions,
                         timestamp=time.time(),
                         previous_hash=last_block.hash)
 
-        new_block.numTransactions = len(self.unconfirmed_transactions)
+        new_block.numTransactions = len(self.unconfirmed_signed_transactions)
         proof = self.proofOfWork(new_block)
         self.addBlock(new_block, proof)
 
-        self.unconfirmed_transactions = []
+        self.unconfirmed_signed_transactions = []
 
         return True
 
 u1 = user.User("zlociu",user.User.hashPassword("0x123456"))
 print(u1.description())
 
-p1 = user.player.Player(u1.identity)
+p1 = user.player.Player(str(u1.identity))
 #u1.savePrivateKey()
 #try:
 #    key1 = u1.loadPrivateKey()
@@ -172,11 +173,11 @@ p1 = user.player.Player(u1.identity)
 #    print("ValueError")
 t1 = user.transaction.Transaction(p1)
 
-sign = user.User.singTransaction(u1.privateKey,t1.transactionJSON().encode())
-st1 = signedTransaction.SignedTransaction(t1.transactionJSON(), str(sign))
+sign = user.User.singTransaction(u1.privateKey, t1.transactionJSON().encode())
+#st1 = signedTransaction.SignedTransaction(t1.transactionJSON(), str(sign))
 blockchain = Blockchain()
 blockchain.create_first_block()
-blockchain.add_new_transaction(st1.signedTransactionJSON())
+blockchain.add_new_transaction(signedTransaction.SignedTransaction(t1, sign))
 blockchain.mine()
 
 print("Chain lenght: ",blockchain.chainLenght)
