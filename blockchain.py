@@ -12,7 +12,7 @@ import signedTransaction
 
 class Block:
     
-    def __init__(self, index, timestamp, previous_hash, transactions: signedTransaction.SignedTransaction, nonce=0):
+    def __init__(self, index, timestamp, previous_hash, transactions, nonce=0):
         """
         Constuctor of Block class.
         # index = ID of block.
@@ -66,12 +66,17 @@ class Blockchain:
         A function that adds the block to the chain after verification.
         Verification includes:
         * Checking if the proof is valid.
+        * Cheking the time of mining block
         * The previous_hash referred in the block and the hash of latest block
           in the chain match.
         """
         previous_hash = self.last_block.hash
+        previos_time = self.last_block.timestamp
 
         if previous_hash != block.previous_hash:
+            return False
+
+        if previos_time > block.timestamp:
             return False
 
         if not Blockchain.isValidProof(block, proof):
@@ -119,8 +124,7 @@ class Blockchain:
             # using `compute_hash` method.
             delattr(block, "hash")
 
-            if not cls.isValidProof(block, block_hash) or \
-                    previous_hash != block.previous_hash:
+            if not cls.isValidProof(block, block_hash) or previous_hash != block.previous_hash:
                 result = False
                 break
 
@@ -128,11 +132,15 @@ class Blockchain:
 
         return result
 
-    def verifyEachTransaction(self, pubKey: rsa.PublicKey):
+    def verifyEachTransaction(self):
         listVerified = []
         for tr in self.unconfirmed_signed_transactions:
-            if True == user.User.verifyTransaction(pubKey, tr.transaction.transactionJSON().encode(), tr.sign):
-                listVerified.append(tr.transaction.transactionJSON().encode())
+            tr_string = tr.transaction.transactionJSON().encode()
+            with open(tr.address + '_e.PEM', mode='rb') as publicfile:
+                keydata = publicfile.read()
+            pubKey = rsa.PublicKey.load_pkcs1(keydata)
+            if True == user.User.verifyTransaction(pubKey, tr_string, tr.sign):
+                listVerified.append(tr.transaction.transactionJSON())
 
         return listVerified        
 
@@ -145,14 +153,16 @@ class Blockchain:
         if not self.unconfirmed_signed_transactions:
             return False
 
+        # future: donwload all publicKeys to enable verify signs
+
         last_block = self.last_block
-        valid_transactions = self.verifyEachTransaction(u1.publicKey)
+        valid_transactions = self.verifyEachTransaction()
         new_block = Block(index=last_block.index + 1,
                         transactions=valid_transactions,
                         timestamp=time.time(),
                         previous_hash=last_block.hash)
 
-        new_block.numTransactions = len(self.unconfirmed_signed_transactions)
+        new_block.numTransactions = len(valid_transactions)
         proof = self.proofOfWork(new_block)
         self.addBlock(new_block, proof)
 
@@ -160,25 +170,48 @@ class Blockchain:
 
         return True
 
-u1 = user.User("zlociu",user.User.hashPassword("0x123456"))
-print(u1.description())
+#u1 = user.User("zlociu", user.User.hashPassword("0x123456"))
+u2 = user.User.loadFromJSON("3a2cee70a6dc101ddf2af8d83d616da7ed80ae6e")
+u3 = user.User.loadFromJSON("a2432bb8586ea40be3dae8f2d45e7189af2d922d")
+print(u3.description())
 
-p1 = user.player.Player(str(u1.identity))
-#u1.savePrivateKey()
+p1 = user.player.Player(str(u3.identity))
+p2 = user.player.Player(str(u2.identity))
+
+#u3.savePrivateKey()
+#u2.savePrivateKey()
+#u3.savePublicKey()
+#u2.savePublicKey()
+#u3.saveAsJSON()
+#u2.saveAsJSON()
+
 #try:
 #    key1 = u1.loadPrivateKey()
 #    print(key1==u1.privateKey)
 #    print()
 #except ValueError:
 #    print("ValueError")
-t1 = user.transaction.Transaction(p1)
 
-sign = user.User.singTransaction(u1.privateKey, t1.transactionJSON().encode())
-#st1 = signedTransaction.SignedTransaction(t1.transactionJSON(), str(sign))
+t1 = user.transaction.Transaction(p1.playerJSON())
+t2 = user.transaction.Transaction(p2.playerJSON())
+#tr_string = t1.transactionJSON()
+#t3 = dict(json.loads(tr_string))
+#t4 = dict(json.loads(t3['player']))
+#print(t4['identity'])
+
+sign1 = user.User.singTransaction(u3.privateKey, t1.transactionJSON().encode())
+sign2 = user.User.singTransaction(u2.privateKey, t2.transactionJSON().encode())
+
 blockchain = Blockchain()
 blockchain.create_first_block()
-blockchain.add_new_transaction(signedTransaction.SignedTransaction(t1, sign))
-blockchain.mine()
+
+blockchain.add_new_transaction(signedTransaction.SignedTransaction(t1, sign1, u3.identity))
+if len(blockchain.unconfirmed_signed_transactions) > 1:
+    blockchain.mine()
+
+blockchain.add_new_transaction(signedTransaction.SignedTransaction(t2, sign1, u3.identity))
+if len(blockchain.unconfirmed_signed_transactions) > 1:
+     blockchain.mine()
 
 print("Chain lenght: ",blockchain.chainLenght)
 for block in blockchain.chain:

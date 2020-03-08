@@ -1,4 +1,5 @@
 from hashlib import sha256 
+from hashlib import sha1
 import json
 import rsa
 import transaction
@@ -16,7 +17,7 @@ class User:
         self.login = login
         self.password = passwdHash
         self.publicKey, self.privateKey = rsa.newkeys(1024,False,1,65537)
-        self.identity = sha256(str(self.publicKey.n).encode()).hexdigest()
+        self.identity = sha1(str(self.publicKey.n).encode()).hexdigest()
         
     
     def savePublicKey(self):
@@ -66,7 +67,13 @@ class User:
         """
         returns if transaction is sign by the owner
         """
-        return 'SHA-256' == rsa.verify(trans, signature, pKey)
+        try:
+            rsa.verify(trans, signature, pKey)
+            return True
+        except:
+            return False
+            
+           
 
     @staticmethod
     def hashPassword(passwd):
@@ -78,10 +85,26 @@ class User:
 
     def saveAsJSON(self):
         """
-        saves user 
+        saves user as JSON file
         """
-        with open(self.identity + '_pl.json',mode='wb') as userFile:
-            userFile.write()    
+        user_string = json.dumps({
+                                  "login":self.login,
+                                  "password":self.password,
+                                  "identity":self.identity
+                                 }, sort_keys=True)
+        with open(self.identity + '_user.json',mode='wb') as userFile:
+            userFile.write(bytes(user_string.encode()))   
+
+    @staticmethod
+    def loadFromJSON(fileName):
+        with open(fileName + '_user.json',mode='rb') as userFile:
+            user_string = userFile.read()
+        u1 = dict(json.loads(user_string))
+        usr = User(u1['login'], u1['password'])
+        usr.identity = u1['identity']
+        usr.privateKey = usr.loadPrivateKey()
+        usr.publicKey = usr.loadPublicKey()
+        return usr
 
 
 #print(sha256(t1.transactionJSON().encode()).hexdigest())

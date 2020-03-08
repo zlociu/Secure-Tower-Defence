@@ -2,9 +2,10 @@ from hashlib import sha256
 import json
 
 class SignedTransaction:
-    def __init__(self, transaction, sign):
+    def __init__(self, transaction, sign, address):
         self.transaction = transaction
         self.sign = sign
+        self.address = address
 
     def signedTransactionJSON(self):
         trString = json.dumps(self.__dict__, sort_keys=True)
