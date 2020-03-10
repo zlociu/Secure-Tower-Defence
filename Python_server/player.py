@@ -3,14 +3,15 @@ import json
 
 class Player:
 
-    def __init__(self, identity):
+    def __init__(self, userAddress):
         """
         Constructor
         # id = unique number, will be public key
         # login = user's name
         # password = password hashed with SHA256
         """
-        self.identity = identity
+        self.identity = 
+        self.userAddress = userAddress
         self.lvl = 1
         self.points = 0
 
