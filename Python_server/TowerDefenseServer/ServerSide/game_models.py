@@ -2,14 +2,14 @@ from django.db import models
 
 
 class Map(models.Model):
-    player_address = models.CharField()
+    player_address = models.CharField(max_length=128)
     validationTimeFrom = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
 class Mob(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=128)
     type = models.PositiveIntegerField()
 
     attack_damage = models.PositiveIntegerField()
@@ -29,7 +29,7 @@ class Mob(models.Model):
 
 
 class Tower(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=128)
     type = models.PositiveIntegerField()
 
     attack_damage = models.PositiveIntegerField()

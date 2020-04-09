@@ -17,12 +17,14 @@ from django.contrib import admin
 from django.urls import path, include
 from ServerSide.views import (
     test_json,
-    test_jpg
+    test_jpg,
+test_db
 )
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('test_json', test_json),
+    path('test_db', test_db),
     path('test_pics', test_jpg)
 ]
