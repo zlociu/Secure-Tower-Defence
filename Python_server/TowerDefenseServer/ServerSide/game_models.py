@@ -1,8 +1,11 @@
 from django.db import models
+from .setter_models import Player
 
 
 class Map(models.Model):
-    player_address = models.CharField(max_length=128)
+    map_address = models.CharField(max_length=127, unique=True)
+    player_address = models.ForeignKey(Player, on_delete=models.CASCADE, verbose_name="player_address")
+    map_array = models.CharField(max_length=512)
     validationTimeFrom = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
