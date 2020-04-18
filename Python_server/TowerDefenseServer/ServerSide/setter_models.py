@@ -4,7 +4,9 @@ from django.db import models
 
 
 class Test(models.Model):
-    name = models.CharField(max_length=127)
+    name = models.CharField(max_length=5, default="game", editable=False)
+    actual_build = models.PositiveIntegerField()
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -15,6 +17,7 @@ class User(models.Model):
     password = models.CharField(max_length=127)
     public_key = models.CharField(max_length=127)
     private_key = models.CharField(max_length=127)
+    game_build = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

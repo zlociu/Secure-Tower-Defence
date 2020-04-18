@@ -23,7 +23,8 @@ from ServerSide.views import (
     setup,
     map_upload,
     map_download,
-    send_newest_version
+    serve_newest_update,
+    submit_update,
 )
 
 
@@ -35,7 +36,8 @@ urlpatterns = [
     path('login', login),
     path('setup', setup),
     path('map_upload', map_upload),
-    path('request_update', send_newest_version),
+    path('request_update', serve_newest_update),
+    path('submit_update', submit_update),
     path('map_download/<str:map_id>', map_download),
 
 ]

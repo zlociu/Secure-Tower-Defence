@@ -1,6 +1,10 @@
 import zipfile
 from datetime import datetime
+import os
+from os import listdir
+from os.path import isfile, join
 
+from django.db.utils import IntegrityError
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.http import FileResponse
@@ -13,14 +17,21 @@ from ServerSide.setter_models import (
     Player,
     KeysRegister
 )
-from ServerSide.graphics_models import Graphic
+from ServerSide.graphics_models import (
+    Graphic,
+    Music,
+    Other,
+)
 from ServerSide.game_models import Map
 
 
 def setup(request):
+    Test.objects.create(actual_build=0)
+
     User.objects.create(identity="test_user_1",
                         login="test_user",
                         password="admin",
+                        game_build=0,
                         public_key="public_key",
                         private_key="private_key"
                         )
@@ -131,7 +142,7 @@ def map_download(request, map_id):
     return response
 
 
-def send_newest_version(request):
+def serve_new_instance(request):
     files = Graphic.objects.all()
 
     filenames = []
@@ -146,20 +157,110 @@ def send_newest_version(request):
     zip_file = zipfile.ZipFile(response, 'w')
     for filename in filenames:
         zip_file.write(filename)
-    response['Content-Disposition'] = 'attachment; filename={}'.format(zipfile_name)
+    response['Content-Disposition'] = f'attachment; filename={zipfile_name}'
     return response
 
-    # file_location = "TowerDefense/Packages/graphics/sprite_1.png"
-    #
-    # try:
-    #     with open(file_location, 'rb') as f:
-    #        file_data = f.read()
-    #
-    #     # sending response
-    #     response = HttpResponse(file_data)
-    #
-    # except IOError:
-    #     # handle file not exist case here
-    #     response = HttpResponseNotFound('<h1>File not exist</h1>')
 
-    # return response
+def submit_update(request):
+    ver = 0
+
+    thisdir = "TowerDefense\\Packages"
+
+    graphic_files = []
+    music_files = []
+    other_files = []
+
+    ### List all files
+
+    for r, d, f in os.walk(thisdir):
+        for file in f:
+            if file.endswith(".png"):
+                graphic_files.append(os.path.join(r, file))
+            elif file.endswith(".ogg"):
+                music_files.append(os.path.join(r, file))
+            else:
+                other_files.append(os.path.join(r, file))
+
+    ### Clean undesired files
+
+    g_all = Graphic.objects.all()
+    m_all = Music.objects.all()
+    o_all = Other.objects.all()
+
+    for g in g_all:
+        if g.path not in graphic_files:
+            Graphic.objects.get(path=g.path).delete()
+
+    for m in m_all:
+        if m.path not in music_files:
+            Music.objects.get(path=m.path).delete()
+
+    for o in o_all:
+        if o.path not in other_files:
+            Other.objects.get(path=o.path).delete()
+
+    ### Update database
+
+    for f in graphic_files:
+        try:
+            print(f)
+            g, c = Graphic.objects.get_or_create(path=f, build=ver)
+            if c:
+                g.version = ver
+        except IntegrityError:
+            print("passing")
+            pass
+
+    for f in music_files:
+        try:
+            m, c = Music.objects.get_or_create(path=f, build=ver)
+            if c:
+                m.version = ver
+        except IntegrityError:
+            pass
+
+    for f in other_files:
+        try:
+            o, c = Other.objects.get_or_create(path=f, build=ver)
+            if c:
+                o.version = ver
+        except IntegrityError:
+            pass
+
+    response = JsonResponse({"update": "ok"})
+    response.status_code = 200
+
+    return response
+
+
+def serve_newest_update(request, user_identity):
+
+    user = User.objects.get(identity=user_identity)
+    user_build = user.game_build
+
+    actual_build = Test.objects.get(name="game").actual_build
+
+    if user_build == actual_build:
+        response = JsonResponse({"status": "aktualne"})
+        response.status_code = 200
+
+    else:
+        files = []
+
+        all_graphic = Graphic.objects.all()
+        all_music = Music.objects.all()
+        all_other = Other.objects.all()
+
+        zip_name = f"update_{actual_build}"
+
+        [files.append(b.path) for b in all_graphic if b.build > user_build]
+        [files.append(b.path) for b in all_music if b.build > user_build]
+        [files.append(b.path) for b in all_other if b.build > user_build]
+
+        response = HttpResponse(content_type='application/zip')
+        zip_file = zipfile.ZipFile(response, 'w')
+        for filename in files:
+            zip_file.write(filename)
+        response['Content-Disposition'] = 'attachment; filename={}'.format(zip_name)
+
+    return response
