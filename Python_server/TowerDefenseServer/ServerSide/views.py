@@ -26,69 +26,68 @@ from ServerSide.game_models import Map
 
 
 def setup(request):
-    Test.objects.create(actual_build=0)
+    """
+    url: /setup
+    :param request: GET
+    Run to setup database with default data
+    """
 
-    User.objects.create(identity="test_user_1",
-                        login="test_user",
-                        password="admin",
-                        game_build=0,
-                        public_key="public_key",
-                        private_key="private_key"
-                        )
+    try:
+        Test.objects.create(actual_build=0)
 
-    user = User.objects.get(identity="test_user_1")
+        User.objects.create(identity="test_user_1",
+                            login="test_user",
+                            password="admin",
+                            game_build=0,
+                            public_key="public_key",
+                            private_key="private_key"
+                            )
 
-    Player.objects.create(identity=user,
-                          user_address="user_address_1",
-                          player_address="player_address_1",
-                          level=0,
-                          points=0
-                          )
+        user = User.objects.get(identity="test_user_1")
 
-    player = Player.objects.get(user_address="user_address_1")
+        Player.objects.create(identity=user,
+                              user_address="user_address_1",
+                              player_address="player_address_1",
+                              level=0,
+                              points=0
+                              )
 
-    KeysRegister.objects.create(
-        user_address=player,
-        public_key="public_key"
-    )
+        player = Player.objects.get(user_address="user_address_1")
 
-    Mob.objects.create(
-        name="mob",
-        type=1,
-        attack_damage=10,
-        attack_range=10.0,
-        fire_rate=2.0,
-        health=100,
-        speed=23.3,
-        level=9,
-        points_remaining=24,
-        spawn_time=22)
-    Graphic.objects.create(path="test")
-    response = JsonResponse({"udane": "setup"})
-    return response
+        KeysRegister.objects.create(
+            user_address=player,
+            public_key="public_key"
+        )
 
+        Mob.objects.create(
+            name="mob",
+            type=1,
+            attack_damage=10,
+            attack_range=10.0,
+            fire_rate=2.0,
+            health=100,
+            speed=23.3,
+            level=9,
+            points_remaining=24,
+            spawn_time=22)
 
-def test_json(request):
-    response = JsonResponse({"foo": "bar"})
-    return response
+        response = JsonResponse({"udane": "setup"})
+    except:
+        response = JsonResponse({"udane": "nie"})
 
-
-def test_jpg(request):
-    response = FileResponse(open('ServerSide/files/test_file.png', 'rb'))
-    return response
-
-
-def test_db(request):
-    Mob.objects.create(name="mob", type=1, attack_damage=10, attack_range=10.0, fire_rate=2.0, health=100, speed=23.3,
-                       level=9, points_remaining=24, spawn_time=22)
-    Test.objects.create(name="test")
-    Graphic.objects.create(path="test")
-    response = FileResponse(open('ServerSide/files/test_file.png', 'rb'))
     return response
 
 
 @csrf_exempt
 def login(request):
+    """
+    url: "/login"
+
+    :param request: POST{"login": login, "pass": password}
+    :return:
+    {"login": Accepted} if login successful, status code: 200
+    {"login": Declined} if login unsuccessful, status code: 403
+    """
     login = request.POST["login"]
     password = request.POST["pass"]
 
@@ -108,6 +107,16 @@ def login(request):
 
 @csrf_exempt
 def map_upload(request):
+    """
+    url: /map_upload
+
+    map_array - map array written as positive integers, separated with ";".
+    player_address - field in Player object.
+    :param request: POST {"map": map_array, "player_address": player_address}
+    :return:
+    {"status": "Map successfully loaded"}, status code: 200
+    {"status": "Error loading map"}, status code: 404
+    """
     map_arr = request.POST["map"]
     player_address = request.POST["player_address"]
 
@@ -122,10 +131,10 @@ def map_upload(request):
             map_array=map_arr,
             validationTimeFrom=datetime.now())
 
-        response = JsonResponse({"status": "mapa załadowana"})
+        response = JsonResponse({"status": "Map successfully loaded"})
         response.status_code = 200
     except:
-        response = JsonResponse({"status": "błąd"})
+        response = JsonResponse({"status": "Error loading map"})
         response.status_code = 404
 
     return response
@@ -133,16 +142,38 @@ def map_upload(request):
 
 @csrf_exempt
 def map_download(request, map_id):
-    print(map_id)
-    map = Map.objects.get(map_address=map_id)
+    """
+    map_addr - Map identifier. Field in Map object.
 
-    response = JsonResponse({"map": map.map_array})
-    response.status_code = 200
+    url: /map_download/{map_addr}
+
+    :param request: GET
+    :param map_id: map_addr
+    :return:
+    {"map": map_obj.map_array}, status code 200
+    {"map": "Failed"}, status code 403
+    """
+    try:
+        map_obj = Map.objects.get(map_address=map_id)
+        response = JsonResponse({"map": map_obj.map_array})
+        response.status_code = 200
+    except:
+        response = JsonResponse({"map": "Failed"})
+        response.status_code = 403
 
     return response
 
 
 def serve_new_instance(request):
+    """
+    Used for new user, that wants to download game.
+
+    url: /download_full_game
+
+    :param request: GET
+    :return:
+    Stream containing zipfile with all game files including graphic and music.
+    """
     files = Graphic.objects.all()
 
     filenames = []
@@ -162,7 +193,23 @@ def serve_new_instance(request):
 
 
 def submit_update(request):
-    ver = 0
+    """
+    ! Used only by administrator.
+    Loading all files from path to database.
+    {path} = "TowerDefense\\Packages"
+    Method, that updates game files.
+
+    url: /submit_update
+
+    :param request: GET
+    ver = version number : positive integer
+    :return:
+    {"update": "ok"}, status code 200
+    """
+    t = Test.objects.get(name="game")
+    t.actual_build = t.actual_build + 1
+    ver = t.actual_build
+    t.save()
 
     thisdir = "TowerDefense\\Packages"
 
@@ -234,6 +281,14 @@ def submit_update(request):
 
 
 def serve_newest_update(request, user_identity):
+    """
+    user_identity - unique user id.
+    System for updating game files.
+    url: /request_update/user_identity
+    :param request: GET
+    :param user_identity:
+    :return:
+    """
 
     user = User.objects.get(identity=user_identity)
     user_build = user.game_build
@@ -257,10 +312,20 @@ def serve_newest_update(request, user_identity):
         [files.append(b.path) for b in all_music if b.build > user_build]
         [files.append(b.path) for b in all_other if b.build > user_build]
 
+        print(files)
+
         response = HttpResponse(content_type='application/zip')
+
+        response.set_cookie("build", actual_build)
+
         zip_file = zipfile.ZipFile(response, 'w')
         for filename in files:
             zip_file.write(filename)
-        response['Content-Disposition'] = 'attachment; filename={}'.format(zip_name)
+        response['Content-Disposition'] = f'attachment; filename={zip_name}'
+
+        print(response.items())
+
+        user.game_build = actual_build
+        user.save()
 
     return response

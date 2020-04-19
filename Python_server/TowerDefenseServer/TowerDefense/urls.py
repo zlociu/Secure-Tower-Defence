@@ -16,28 +16,30 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from ServerSide.views import (
-    test_json,
-    test_jpg,
-    test_db,
     login,
     setup,
     map_upload,
     map_download,
     serve_newest_update,
     submit_update,
+    serve_new_instance
 )
 
 
 urlpatterns = [
+    # Admin
     path('admin/', admin.site.urls),
-    path('test_json', test_json),
-    path('test_db', test_db),
-    path('test_pics', test_jpg),
+
+    # User
     path('login', login),
     path('setup', setup),
+
+    # Map
     path('map_upload', map_upload),
-    path('request_update', serve_newest_update),
-    path('submit_update', submit_update),
     path('map_download/<str:map_id>', map_download),
 
+    # Updates
+    path('download_full_game', serve_new_instance),
+    path('submit_update', submit_update),
+    path('request_update/<str:user_identity>', serve_newest_update),
 ]

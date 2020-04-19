@@ -45,7 +45,7 @@ def request_map(map_addr):
     print(r.json())
 
 
-def send_update():
+def get_full_new_version():
     url = 'http://127.0.0.1:8000/request_update'
 
     path = "client_files/files.zip"
@@ -54,7 +54,7 @@ def send_update():
     response = requests.get(url, stream=True)
     handle = open(path, "wb")
     for chunk in response.iter_content(chunk_size=512):
-        if chunk:  # filter out keep-alive new chunks
+        if chunk:
             handle.write(chunk)
     handle.close()
 
@@ -64,6 +64,32 @@ def send_update():
     os.remove(path)
 
 
+def request_update():
+    url = 'http://127.0.0.1:8000/request_update'
+
+    identity = "test_user_1"
+
+    response = requests.get(f"{url}/{identity}", stream=True)
+
+    new_build = response.cookies['build']
+
+    path = f"client_files/update_{new_build}.zip"
+    dst_path = "client_files/files"
+
+    handle = open(path, "wb")
+    for chunk in response.iter_content(chunk_size=512):
+        if chunk:
+            handle.write(chunk)
+    handle.close()
+
+    print(new_build)
+
+    with ZipFile(path, "r") as zip:
+        zip.extractall(dst_path)
+
+    # os.remove(path)
+
+
 if __name__ == '__main__':
 
     # login()
@@ -71,4 +97,5 @@ if __name__ == '__main__':
     # send_map(map_array)
     # map_addr = "random_address"
     # request_map(map_addr)
-    send_update()
+    # get_full_new_version()
+    request_update()

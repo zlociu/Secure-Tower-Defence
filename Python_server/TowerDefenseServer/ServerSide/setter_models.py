@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Test(models.Model):
-    name = models.CharField(max_length=5, default="game", editable=False)
+    name = models.CharField(max_length=5, default="game", editable=False, unique=True)
     actual_build = models.PositiveIntegerField()
 
     created_at = models.DateTimeField(auto_now_add=True)
