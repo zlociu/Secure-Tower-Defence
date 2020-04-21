@@ -16,7 +16,7 @@ class User(models.Model):
     login = models.CharField(max_length=127, unique=True)
     password = models.CharField(max_length=127)
     public_key = models.CharField(max_length=127)
-    private_key = models.CharField(max_length=127)
+    '''private_key = models.CharField(max_length=127)'''
     game_build = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

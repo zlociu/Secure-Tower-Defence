@@ -4,22 +4,33 @@ import json
 import rsa
 import transaction
 import player
+from django.db import models
 
-class User: 
+class User(models.Model): 
+    identity = models.CharField(max_length=160, unique=True)
+    login = models.CharField(max_length=127, unique=True)
+    password = models.CharField(max_length=256)
+    public_key = models.CharField(max_length=256)
+    game_build = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    def __init__(self, login, passwdHash):
+    @classmethod
+    def create(cls, login, passwdHash, public_key):
         """
         Constructor
         # id = unique number, will be public key
         # login = user's name
         # password = password hashed with SHA256
         """
-        self.login = login
-        self.password = passwdHash
-        self.publicKey, self.privateKey = rsa.newkeys(1024,False,1,65537)
-        self.identity = sha1(str(self.publicKey.n).encode()).hexdigest()
+        user = cls( login=login, 
+                    password=passdwHash, 
+                    public_key=public_key, 
+                    game_buid=0
+                    identity=sha1(login).hexdigest())
+        return user
         
-    
+
     def savePublicKey(self):
         """
         Saves public key into file named 'identity'.PEM
@@ -27,6 +38,7 @@ class User:
         key = self.publicKey.save_pkcs1()
         with open(self.identity + '_e.PEM', mode='wb') as publicFile:
             publicFile.write(key)
+
 
     def savePrivateKey(self):
         """
@@ -55,26 +67,25 @@ class User:
         return pubKey
 
     @staticmethod
-    def singTransaction(pKey: rsa.PrivateKey, trans: transaction.Transaction):
+    def singTransaction(pKey: rsa.PrivateKey, data):
         """
         returns signature of transaction (in bytes) 
         """
-        signed = rsa.sign(trans, pKey,'SHA-256')
+        signed = rsa.sign(data, pKey,'SHA-256')
         return signed
 
     @staticmethod
-    def verifyTransaction(pKey: rsa.PublicKey, trans: transaction.Transaction, signature):
+    def verifyTransaction(pKey: rsa.PublicKey, data, signature):
         """
         returns if transaction is sign by the owner
         """
         try:
-            rsa.verify(trans, signature, pKey)
+            rsa.verify(data, signature, pKey)
             return True
         except:
             return False
             
            
-
     @staticmethod
     def hashPassword(passwd):
         return sha256(passwd.encode()).hexdigest()
