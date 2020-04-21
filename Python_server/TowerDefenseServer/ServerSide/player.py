@@ -2,8 +2,6 @@ from hashlib import sha256
 import json
 from django.db import models
 
-class Player:
-
 class Player(models.Model):
     identity = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="user", unique=True)
     player_address = models.CharField(max_length=127, unique=True)

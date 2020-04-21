@@ -7,7 +7,7 @@ import player
 from django.db import models
 
 class User(models.Model): 
-    identity = models.CharField(max_length=160, unique=True)
+    identity = models.CharField(max_length=160, unique=True, primary_key=True)
     login = models.CharField(max_length=127, unique=True)
     password = models.CharField(max_length=256)
     public_key = models.CharField(max_length=256)
