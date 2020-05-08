@@ -1,7 +1,7 @@
 from hashlib import sha256 
 import json
 from django.db import models
-from .user_models import User
+from django.contrib.auth.models import User
 
 
 class Player(models.Model):

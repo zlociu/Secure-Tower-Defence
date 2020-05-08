@@ -16,22 +16,24 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from ServerSide.views import (
-    login,
+    login_user,
     setup,
     map_upload,
     map_download,
     serve_newest_update,
     submit_update,
-    serve_new_instance
+    serve_new_instance,
+    register,
 )
 
 
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
+    path('register', register),
+    path('login', login_user),
 
     # User
-    path('login', login),
     path('setup', setup),
 
     # Map

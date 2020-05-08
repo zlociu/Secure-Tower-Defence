@@ -5,11 +5,15 @@ from os import listdir
 from os.path import isfile, join
 from hashlib import sha256
 from hashlib import sha1
+
+import django
+from django.contrib.auth import authenticate, logout, login
 from django.db.utils import IntegrityError
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.http import FileResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
 # Create your views here.
 
 from ServerSide.game_models import Mob
@@ -18,9 +22,9 @@ from ServerSide.setter_models import (
     #     User,
     #     KeysRegister
 )
-from ServerSide.user_models import (
-    User
-)
+# from ServerSide.user_models import (
+#     User
+# )
 
 from ServerSide.tower_models import (
     Tower
@@ -35,6 +39,43 @@ from ServerSide.graphics_models import (
     Other,
 )
 from ServerSide.game_models import Map
+
+
+@csrf_exempt
+def register(request):
+    login = request.POST['login']
+    passwd = request.POST['password']
+
+    try:
+        user = User.objects.create_user(username=login, password=passwd)
+        response = JsonResponse({"User": "Created"})
+        response.status_code = 200
+    except django.db.utils.IntegrityError:
+        response = JsonResponse({"User": "Already exists"})
+        response.status_code = 403
+
+    return response
+
+
+@csrf_exempt
+def login_user(request):
+
+    username = request.POST['login']
+    password = request.POST['password']
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+        response = JsonResponse({"User": "Logged"})
+        response.status_code = 200
+    else:
+        response = JsonResponse({"User": "Invalid login"})
+        response.status_code = 403
+
+    return response
+
+
+def logout_view(request):
+    logout(request)
 
 
 def setup(request):
@@ -84,25 +125,25 @@ def setup(request):
 
     return response
 
-
-def register(request):
-    # odebranie klucza publicznego - dopisanie do bazy
-
-    login = request.POST['login']
-    passwd_hash = request.POST['pass_hash']
-    public_key = request.POST['public_key']
-
-    is_created = User.objects.get_or_create(login=login, password=passwd_hash, public_key=public_key,
-                                            game_build=Test.actual_build, identity=sha1(login).hexdigest())
-
-    if is_created:
-        response = JsonResponse({"User": "Already exists"})
-        response.status_code = 403
-    else:
-        response = JsonResponse({"User": "Created"})
-        response.status_code = 200
-
-    return response
+#
+# def register(request):
+#     # odebranie klucza publicznego - dopisanie do bazy
+#
+#     login = request.POST['login']
+#     passwd_hash = request.POST['pass_hash']
+#     public_key = request.POST['public_key']
+#
+#     is_created = User.objects.get_or_create(login=login, password=passwd_hash, public_key=public_key,
+#                                             game_build=Test.actual_build, identity=sha1(login).hexdigest())
+#
+#     if is_created:
+#         response = JsonResponse({"User": "Already exists"})
+#         response.status_code = 403
+#     else:
+#         response = JsonResponse({"User": "Created"})
+#         response.status_code = 200
+#
+#     return response
 
 
 def update_stats(request):
@@ -166,11 +207,10 @@ def create_player(request):
     player_address = request.POST['player_address']
     user_address = request.POST['user_address']
 
-
     Player.objects.get_or_create(
         identity=identity,
         player_address=player_address,
-        user_address = user_address
+        user_address=user_address
     )
 
 
@@ -209,31 +249,31 @@ def create_mob(request):
     return response
 
 
-@csrf_exempt
-def login(request):
-    """
-    url: "/login"
-
-    :param request: POST{"login": login, "pass": password}
-    :return:
-    {"login": Accepted} if login successful, status code: 200
-    {"login": Declined} if login unsuccessful, status code: 403
-    """
-    login = request.POST["login"]
-    password = request.POST["pass"]
-
-    usr = User.objects.filter(login=login, password=password)
-
-    print(usr.all())
-
-    if usr:
-        response = JsonResponse({"login": "Accepted"})
-        response.status_code = 200
-    else:
-        response = JsonResponse({"login": "Declined"})
-        response.status_code = 403
-
-    return response
+# @csrf_exempt
+# def login(request):
+#     """
+#     url: "/login"
+#
+#     :param request: POST{"login": login, "pass": password}
+#     :return:
+#     {"login": Accepted} if login successful, status code: 200
+#     {"login": Declined} if login unsuccessful, status code: 403
+#     """
+#     login = request.POST["login"]
+#     password = request.POST["password"]
+#
+#     usr = User.objects.filter(login=login, password=password)
+#
+#     print(usr.all())
+#
+#     if usr:
+#         response = JsonResponse({"login": "Accepted"})
+#         response.status_code = 200
+#     else:
+#         response = JsonResponse({"login": "Declined"})
+#         response.status_code = 403
+#
+#     return response
 
 
 @csrf_exempt

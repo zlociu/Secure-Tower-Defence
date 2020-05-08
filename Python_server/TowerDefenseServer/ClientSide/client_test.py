@@ -91,6 +91,19 @@ def request_update():
     # os.remove(path)
 
 
+def register(login, passwd):
+
+    content = {"login": login, "password": passwd}
+
+    r = requests.post('http://127.0.0.1:8000/register', data=content)
+
+
+def login(login, passwd):
+    content = {"login": login, "password": passwd}
+
+    r = requests.post('http://127.0.0.1:8000/login', data=content)
+
+
 if __name__ == '__main__':
 
     # login()
@@ -99,4 +112,6 @@ if __name__ == '__main__':
     # map_addr = "random_address"
     # request_map(map_addr)
     # get_full_new_version()
-    request_update()
+    # request_update()
+    register("user2", "abcde")
+    login("user1", "abcde")
