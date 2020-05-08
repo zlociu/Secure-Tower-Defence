@@ -1,5 +1,5 @@
 from django.db import models
-from .setter_models import Player
+from .player_models import Player
 
 
 class Map(models.Model):
@@ -21,24 +21,6 @@ class Mob(models.Model):
 
     health = models.PositiveIntegerField()
     speed = models.FloatField()
-
-    level = models.PositiveIntegerField()
-    points_remaining = models.PositiveIntegerField()
-    # ?????????????????
-    spawn_time = models.PositiveIntegerField()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-
-class Tower(models.Model):
-    name = models.CharField(max_length=128)
-    type = models.PositiveIntegerField()
-
-    attack_damage = models.PositiveIntegerField()
-    fire_rate = models.FloatField()
-
-    health = models.PositiveIntegerField()
 
     level = models.PositiveIntegerField()
     points_remaining = models.PositiveIntegerField()

@@ -2,9 +2,10 @@ from hashlib import sha256
 from hashlib import sha1
 import json
 import rsa
-import transaction
-import player
+# import transaction
+# import player
 from django.db import models
+
 
 class User(models.Model): 
     identity = models.CharField(max_length=160, unique=True, primary_key=True)
@@ -15,22 +16,6 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    @classmethod
-    def create(cls, login, passwdHash, public_key):
-        """
-        Constructor
-        # id = unique number, will be public key
-        # login = user's name
-        # password = password hashed with SHA256
-        """
-        user = cls( login=login, 
-                    password=passdwHash, 
-                    public_key=public_key, 
-                    game_buid=0
-                    identity=sha1(login).hexdigest())
-        return user
-        
-
     def savePublicKey(self):
         """
         Saves public key into file named 'identity'.PEM
@@ -38,7 +23,6 @@ class User(models.Model):
         key = self.publicKey.save_pkcs1()
         with open(self.identity + '_e.PEM', mode='wb') as publicFile:
             publicFile.write(key)
-
 
     def savePrivateKey(self):
         """
@@ -84,8 +68,7 @@ class User(models.Model):
             return True
         except:
             return False
-            
-           
+
     @staticmethod
     def hashPassword(passwd):
         return sha256(passwd.encode()).hexdigest()
@@ -121,7 +104,3 @@ class User(models.Model):
 #print(sha256(t1.transactionJSON().encode()).hexdigest())
 #isOK = User.verifyTransaction(u1.publicKey, t1.transactionJSON().encode(), sign)
 #print(isOK)
-
-
-
-
