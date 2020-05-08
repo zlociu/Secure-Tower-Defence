@@ -3,19 +3,31 @@ from datetime import datetime
 import os
 from os import listdir
 from os.path import isfile, join
-
+from hashlib import sha256
+from hashlib import sha1
 from django.db.utils import IntegrityError
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.http import FileResponse
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
+
 from ServerSide.game_models import Mob
 from ServerSide.setter_models import (
     Test,
-    User,
-    Player,
-    KeysRegister
+    #     User,
+    #     KeysRegister
+)
+from ServerSide.user_models import (
+    User
+)
+
+from ServerSide.tower_models import (
+    Tower
+)
+
+from ServerSide.player_models import (
+    Player
 )
 from ServerSide.graphics_models import (
     Graphic,
@@ -54,11 +66,6 @@ def setup(request):
 
         player = Player.objects.get(user_address="user_address_1")
 
-        KeysRegister.objects.create(
-            user_address=player,
-            public_key="public_key"
-        )
-
         Mob.objects.create(
             name="mob",
             type=1,
@@ -74,6 +81,130 @@ def setup(request):
         response = JsonResponse({"udane": "setup"})
     except:
         response = JsonResponse({"udane": "nie"})
+
+    return response
+
+
+def register(request):
+    # odebranie klucza publicznego - dopisanie do bazy
+
+    login = request.POST['login']
+    passwd_hash = request.POST['pass_hash']
+    public_key = request.POST['public_key']
+
+    is_created = User.objects.get_or_create(login=login, password=passwd_hash, public_key=public_key,
+                                            game_build=Test.actual_build, identity=sha1(login).hexdigest())
+
+    if is_created:
+        response = JsonResponse({"User": "Already exists"})
+        response.status_code = 403
+    else:
+        response = JsonResponse({"User": "Created"})
+        response.status_code = 200
+
+    return response
+
+
+def update_stats(request):
+
+    identity = request.POST['player']
+    new_level = request.POST['level']
+
+    status = Player.objects.filter(identity=identity).update(level=new_level)
+
+    if status:
+        response = JsonResponse({"Player": "Error"})
+        response.status_code = 403
+    else:
+        response = JsonResponse({"Player": f"new level: {new_level}"})
+        response.status_code = 200
+
+    return response
+
+
+def create_tower(request):
+
+    identity = request.POST['identity']
+    name = request.POST['name']
+    type = request.POST['type']
+    level = request.POST['level']
+    attack_damage = request.POST['attack_damage']
+    attack_distance = request.POST['attack_distance']
+    fire_rate = request.POST['fire_rate']
+    price = request.POST['price']
+
+    is_created = Tower.objects.get_or_create(
+        identity=identity,
+        name=name,
+        type=type,
+        level=level,
+        attack_damage=attack_damage,
+        attack_distance=attack_distance,
+        fire_rate=fire_rate,
+        price=price
+    )
+
+    if is_created:
+        response = JsonResponse({"Tower": "Already exists"})
+        response.status_code = 403
+    else:
+        response = JsonResponse({"Tower": "Created"})
+        response.status_code = 200
+
+    return response
+
+
+def create_player(request):
+    """
+    Constructor
+    # id = unique number, will be public key
+    # login = user's name
+    # password = password hashed with SHA256
+    """
+
+    identity = request.POST['identity']
+    player_address = request.POST['player_address']
+    user_address = request.POST['user_address']
+
+
+    Player.objects.get_or_create(
+        identity=identity,
+        player_address=player_address,
+        user_address = user_address
+    )
+
+
+def create_mob(request):
+    name = request.POST['name']
+    _type = request.POST['type']
+    attack_damage = request.POST['attack_damage']
+    attack_range = request.POST['attack_range']
+    fire_rate = request.POST['fire_rate']
+    health = request.POST['health']
+    speed = request.POST['speed']
+    level = request.POST['level']
+    points_remaining = request.POST['points_remaining']
+    spawn_time = request.POST['spawn_time']
+
+    is_created = Mob.objects.get_or_create(
+        name=name,
+        type=_type,
+        attack_damage=attack_damage,
+        attack_range=attack_range,
+        fire_rate=fire_rate,
+        health=health,
+        speed=speed,
+        level=level,
+        points_remaining=points_remaining,
+        spawn_time=spawn_time
+    )
+
+    if is_created:
+        response = JsonResponse({"Mob": "Already exists"})
+        response.status_code = 403
+    else:
+        response = JsonResponse({"Mob": "Created"})
+        response.status_code = 200
 
     return response
 
