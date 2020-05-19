@@ -7,7 +7,7 @@ public class Projectile : MonoBehaviour
 {
     public Transform Unit;
 
-    private int _speed = 400;
+    private int _speed = 100;
 
     // Start is called before the first frame update
     void Start()

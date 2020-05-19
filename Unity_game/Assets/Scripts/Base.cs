@@ -4,20 +4,30 @@ using UnityEngine;
 
 public class Base : MonoBehaviour
 {
-    public int Hp = 5;
+    public Transform HpUiGroup;
+    private int _hp = 5;
+    public int Hp => _hp;
 
     // Start is called before the first frame update
     void Start()
     {
-        
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Hp == 0)
+        if (_hp == 0)
         {
             Destroy(gameObject);
+        }
+    }
+
+    public void DecreaseHp(int hpAmount)
+    {
+        _hp -= hpAmount;
+        if (HpUiGroup.childCount != 0)
+        {
+            Destroy(HpUiGroup.GetChild(HpUiGroup.childCount - 1).gameObject);
         }
     }
 }

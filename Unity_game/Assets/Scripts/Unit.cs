@@ -7,7 +7,7 @@ namespace Assets.Scripts
         public Transform WaypointsGroup;
 
         private int _waypointIndex = 0;
-        private int _speed = 60;
+        private int _speed = 40;
         public int Hp = 3;
 
         // Start is called before the first frame update
@@ -18,7 +18,7 @@ namespace Assets.Scripts
         // Update is called once per frame
         void Update()
         {
-            if (Hp == 0)
+            if (Hp <= 0)
             {
                 Destroy(gameObject);
             }
@@ -44,7 +44,7 @@ namespace Assets.Scripts
         {
             if (collision.gameObject.name == "base")
             {
-                collision.gameObject.GetComponent<Base>().Hp -= 1;
+                collision.gameObject.GetComponent<Base>().DecreaseHp(1);
                 Destroy(gameObject);
             }
         }

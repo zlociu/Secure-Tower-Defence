@@ -9,7 +9,8 @@ namespace Assets.Scripts
         [SerializeField] private List<GameObject> _tiles;
         [SerializeField] private GameObject _base;
         [SerializeField] private GameObject _enemy;
-        [SerializeField] private GameObject _turretChoice;
+        [SerializeField] private GameObject _lifeUiGroup;
+        [SerializeField] private GameObject _lifePrefab;
         private GameObject _waypointsGroup;
         private GameObject _unitsGroup;
         private GameObject _terrainTilesGroup;
@@ -18,27 +19,32 @@ namespace Assets.Scripts
         private Vector2Int _spawnCoords;
         public float SpawnPeriod;
 
+
         private List<List<int>> _tileMap = new List<List<int>>
         {
-            new List<int> {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            new List<int> {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0},
-            new List<int> {1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0},
-            new List<int> {0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0},
-            new List<int> {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0},
-            new List<int> {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+            new List<int> {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            new List<int> {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+            new List<int> {1, 1, 0, 0, 0, 0, 0, 0, 1, 0},
+            new List<int> {0, 0, 0, 1, 1, 1, 0, 0, 1, 0},
+            new List<int> {0, 0, 0, 1, 0, 1, 1, 1, 1, 0},
+            new List<int> {0, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+            new List<int> {0, 1, 0, 0, 0, 1, 1, 1, 1, 0},
+            new List<int> {0, 1, 0, 0, 0, 1, 0, 0, 1, 0},
+            new List<int> {0, 1, 1, 1, 1, 1, 0, 0, 1, 0},
+            new List<int> {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
         };
 
-        private Bounds bounds;
+        private Bounds _bounds;
 
         // Start is called before the first frame update
         void Start()
         {
-            bounds = new Bounds(transform.position, Vector3.one);
+            _bounds = new Bounds(transform.position, Vector3.one);
 
             _waypointsGroup = new GameObject("waypoints");
             _unitsGroup = new GameObject("units");
             _terrainTilesGroup = new GameObject("terrain_tiles");
-            _turretChoice.GetComponentInChildren<TurretCreation>().UnitsGroup = _unitsGroup;
+            TurretCreation.UnitsGroup = _unitsGroup;
             _pathTilesGroup = new GameObject("path_tiles");
             CreateLevel();
             CreateBase();
@@ -47,7 +53,7 @@ namespace Assets.Scripts
         // Update is called once per frame
         void Update()
         {
-            if (SpawnPeriod > 1f)
+            if (SpawnPeriod > 2f)
             {
                 SpawnEnemy();
                 SpawnPeriod = 0f;
@@ -58,7 +64,6 @@ namespace Assets.Scripts
 
         private void CreateLevel()
         {
-            float edgeLength = _tiles[0].GetComponent<Renderer>().bounds.size[0];
             for (int y = 0; y < _tileMap.Count; y++)
             {
                 for (int x = 0; x < _tileMap[y].Count; x++)
@@ -81,26 +86,23 @@ namespace Assets.Scripts
 
             Quaternion currentRotation = transform.rotation;
             transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            bounds = new Bounds(transform.position, Vector3.zero);
-            foreach (Renderer renderer in _terrainTilesGroup.GetComponentsInChildren<Renderer>())
+            _bounds = new Bounds(transform.position, Vector3.zero);
+            foreach (Renderer tileRenderer in _terrainTilesGroup.GetComponentsInChildren<Renderer>())
             {
-                bounds.Encapsulate(renderer.bounds);
+                _bounds.Encapsulate(tileRenderer.bounds);
             }
 
-            Debug.Log("The bounds of this model is " + bounds);
+            Debug.Log("The bounds of this model is " + _bounds);
             transform.rotation = currentRotation;
-            Camera.main.transform.position = bounds.center;
-            Camera.main.GetComponent<CameraZoom>().MaxOrtho = bounds.center.x;
+            Camera.main.transform.position = _bounds.center;
+            Camera.main.GetComponent<CameraZoom>().MaxOrtho = _bounds.center.x;
             Camera.main.GetComponent<CameraZoom>().ApplyOrthoLimits();
-            Camera.main.GetComponent<CameraMovement>().Bounds = bounds;
-
-            _turretChoice.GetComponentInChildren<TurretCreation>().TerrainTilesGroup = _terrainTilesGroup;
+            Camera.main.GetComponent<CameraMovement>().Bounds = _bounds;
         }
 
         private void CreateBase()
         {
             Vector2Int startCoords = Vector2Int.down;
-            float edgeLength = _tiles[0].GetComponent<Renderer>().bounds.size[0];
 
             // Gets start coordinates
             for (int y = 0; y < _tileMap.Count - 1; y++)
@@ -143,7 +145,17 @@ namespace Assets.Scripts
                 "base",
                 new Vector3Int(baseCoords.x, baseCoords.y, -2)
             );
-            baseObject.AddComponent<Base>();
+            Base baseComponent = baseObject.AddComponent<Base>();
+            baseComponent.HpUiGroup = _lifeUiGroup.transform;
+            for (int i = 0; i < baseComponent.Hp; i++)
+            {
+                GameObject lifeUi = SpawnObject(Instantiate(_lifePrefab), "life" + i, Vector3Int.zero);
+                lifeUi.transform.SetParent(_lifeUiGroup.transform);
+                Vector3 position = Vector3Int.zero;
+                position.x = (i + 1) * 49;
+                position.z = _lifeUiGroup.transform.localPosition.z;
+                lifeUi.transform.localPosition = position;
+            }
 
             GameObject baseWaypoint = SpawnObject(
                 new GameObject(),
@@ -216,7 +228,7 @@ namespace Assets.Scripts
                     baseCoords = currentCoords;
                 }
 
-                if (previousCoordsName != "" && previousCoordsName != coordsName)
+                if (previousCoordsName != coordsName)
                 {
                     GameObject waypoint = SpawnObject(
                         new GameObject(),
@@ -224,7 +236,6 @@ namespace Assets.Scripts
                         new Vector3Int(previousCoords.x, previousCoords.y, -2)
                     );
                     waypoint.transform.SetParent(_waypointsGroup.transform);
-                    // waypoint.GetComponent<Renderer>().enabled = false;
                     waypointNum += 1;
                 }
 
