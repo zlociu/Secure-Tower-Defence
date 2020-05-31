@@ -8,19 +8,23 @@ namespace Assets.Scripts
 
         private int _waypointIndex = 0;
         private int _speed = 40;
-        public int Hp = 3;
+        private int _hp = 3;
+        [SerializeField] private AudioClip _monsterSoundClip;
+        private SoundManager _soundManager;
 
         // Start is called before the first frame update
         void Start()
         {
+            _soundManager = FindObjectOfType<SoundManager>();
+            _soundManager.AddAudioSource(gameObject.GetInstanceID(), _monsterSoundClip);
         }
 
         // Update is called once per frame
         void Update()
         {
-            if (Hp <= 0)
+            if (_hp <= 0)
             {
-                Destroy(gameObject);
+                _destroyUnit();
             }
 
             if (_waypointIndex >= WaypointsGroup.childCount)
@@ -40,13 +44,25 @@ namespace Assets.Scripts
             }
         }
 
+        private void _destroyUnit()
+        {
+            _soundManager.RemoveAudioSource(gameObject.GetInstanceID());
+            Destroy(gameObject);
+        }
+
         void OnCollisionEnter2D(Collision2D collision)
         {
             if (collision.gameObject.name == "base")
             {
                 collision.gameObject.GetComponent<Base>().DecreaseHp(1);
-                Destroy(gameObject);
+                _destroyUnit();
             }
+        }
+
+        public void DecreaseHp(int amount)
+        {
+            _hp -= amount;
+            _soundManager.PlaySound(gameObject.GetInstanceID());
         }
     }
 }

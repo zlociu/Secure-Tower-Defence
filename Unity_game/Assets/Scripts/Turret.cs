@@ -9,13 +9,17 @@ public class Turret : MonoBehaviour
     public float SpawnSpeed = 0.5f;
 
     [SerializeField] private GameObject _turretRangePrefab;
+    [SerializeField] private AudioClip _shootingSoundClip;
     private GameObject _turretRange;
+    private SoundManager _soundManager;
 
     private float _spawnPeriod;
 
     // Start is called before the first frame update
     void Start()
     {
+        _soundManager = FindObjectOfType<SoundManager>();
+        _soundManager.AddAudioSource(gameObject.GetInstanceID(), _shootingSoundClip);
     }
 
     // Update is called once per frame
@@ -67,6 +71,10 @@ public class Turret : MonoBehaviour
         projectile.transform.SetParent(transform);
         Projectile projectileScript = projectile.AddComponent<Projectile>();
         projectileScript.Unit = closestUnit;
+        Vector2 dir = closestUnit.position - transform.position;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        _soundManager.PlaySound(gameObject.GetInstanceID());
         return true;
     }
 

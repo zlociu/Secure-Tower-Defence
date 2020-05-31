@@ -569,6 +569,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1555462538}
   - component: {fileID: 1555462537}
+  - component: {fileID: 1555462539}
   m_Layer: 0
   m_Name: Level Manager
   m_TagString: Untagged
@@ -589,7 +590,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tiles:
-  - {fileID: 606316707177176056, guid: c2d5881bffdceee4f9cd0a0e4f72dc12, type: 3}
+  - {fileID: 7623993050853861532, guid: c2d5881bffdceee4f9cd0a0e4f72dc12, type: 3}
   - {fileID: 3827615093457061162, guid: 0348fe0f1969ac34abc3f49b1c1172fa, type: 3}
   _base: {fileID: 7981596417576688126, guid: 73b33a6be2d68be4591b62d30a9c8fa5, type: 3}
   _enemy: {fileID: 655344242173375002, guid: 58820ea7f86cb23429497fe6174e5506, type: 3}
@@ -611,6 +612,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1555462539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1555462536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a40558136bf774f4abaf37ba8fb734ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1638150760
 GameObject:
   m_ObjectHideFlags: 0

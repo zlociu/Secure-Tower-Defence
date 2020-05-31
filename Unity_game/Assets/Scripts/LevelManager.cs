@@ -19,7 +19,6 @@ namespace Assets.Scripts
         private Vector2Int _spawnCoords;
         public float SpawnPeriod;
 
-
         private List<List<int>> _tileMap = new List<List<int>>
         {
             new List<int> {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -257,8 +256,7 @@ namespace Assets.Scripts
                 new Vector3Int(_spawnCoords.x, _spawnCoords.y, -2)
             );
             enemy.transform.SetParent(_unitsGroup.transform);
-            Unit unitScript = enemy.AddComponent<Unit>();
-            unitScript.WaypointsGroup = _waypointsGroup.transform;
+            enemy.GetComponent<Unit>().WaypointsGroup = _waypointsGroup.transform;
         }
 
         private GameObject SpawnObject(GameObject gameObject1, string name1, Vector3Int coordinates)

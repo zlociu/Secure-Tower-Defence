@@ -1,0 +1,38 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class LoginButton : MonoBehaviour, IPointerUpHandler
+{
+    [SerializeField] private InputField _usernameInput;
+    [SerializeField] private InputField _passwordInput;
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (_usernameInput.text.Length == 0 || _passwordInput.text.Length == 0)
+        {
+            return;
+        }
+
+        Dictionary<string, string> loginDict = new Dictionary<string, string>
+        {
+            {"login", _usernameInput.text}, {"password", _passwordInput.text}
+        };
+
+        UnityWebRequest request = UnityWebRequest.Post("http://127.0.0.1:8000/login", loginDict);
+        request.SendWebRequest();
+        while (!request.isDone)
+        {
+            new WaitForSeconds(0.5f);
+        }
+
+        if (request.responseCode == 200)
+        {
+            SceneManager.LoadScene("Scenes/MainMenuScene", LoadSceneMode.Single);
+        }
+    }
+}

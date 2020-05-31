@@ -37,7 +37,7 @@ public class Projectile : MonoBehaviour
         if (collision.gameObject.name == Unit.gameObject.name)
         {
             Destroy(gameObject);
-            Unit.GetComponent<Unit>().Hp -= 1;
+            Unit.GetComponent<Unit>().DecreaseHp(1);
         }
     }
 }

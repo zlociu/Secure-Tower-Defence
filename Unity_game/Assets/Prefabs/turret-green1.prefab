@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &7623993050853861532
+--- !u!1 &1222365039802769005
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,39 +8,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6248194936957000321}
-  - component: {fileID: 6852212865388676157}
-  - component: {fileID: 9131049914600873755}
-  - component: {fileID: 61673921029130596}
-  - component: {fileID: 50531179443174850}
+  - component: {fileID: 355419999109023027}
+  - component: {fileID: 941608757500533844}
+  - component: {fileID: 114344886742788588}
   m_Layer: 0
-  m_Name: terrain-tile
+  m_Name: turret-green1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6248194936957000321
+--- !u!4 &355419999109023027
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7623993050853861532}
+  m_GameObject: {fileID: 1222365039802769005}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 24.856567, y: 103.941315, z: 0}
+  m_LocalPosition: {x: 53.631683, y: 99.363464, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &6852212865388676157
+--- !u!212 &941608757500533844
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7623993050853861532}
+  m_GameObject: {fileID: 1222365039802769005}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -71,7 +69,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 9ff3a18ab42ad0c4485360204e937db0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 04f05ba9db2203041a2136066a5ee6ba, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -82,64 +80,23 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &9131049914600873755
+--- !u!114 &114344886742788588
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7623993050853861532}
+  m_GameObject: {fileID: 1222365039802769005}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13d1878092dfadc44af499c7d7accfde, type: 3}
+  m_Script: {fileID: 11500000, guid: 10cd01ad86a634a49b69d1e5cee13810, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _turretUiPrefab: {fileID: 8818117797712331888, guid: 50f5561186b99b94faafcf7c936593d1,
+  UnitsGroup: {fileID: 0}
+  Projectile: {fileID: 2760446952690630953, guid: 19316ae215b2ea74e95f5a47bdc2a20a,
     type: 3}
---- !u!61 &61673921029130596
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7623993050853861532}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 32, y: 32}
-    newSize: {x: 32, y: 32}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 32, y: 32}
-  m_EdgeRadius: 0
---- !u!50 &50531179443174850
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7623993050853861532}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 0.0001
-  m_LinearDrag: 0
-  m_AngularDrag: 0
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 7
+  Range: 75
+  SpawnSpeed: 0.5
+  _turretRangePrefab: {fileID: 6004230708081152816, guid: 93d61d3e122261f4585376ec2b3996e8,
+    type: 3}
+  _shootingSoundClip: {fileID: 8300000, guid: b274ad39c96007c488a7a55c519301f3, type: 3}
