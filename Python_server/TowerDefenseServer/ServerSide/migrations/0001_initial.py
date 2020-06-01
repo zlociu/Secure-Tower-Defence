@@ -7,11 +7,10 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-	    ('auth', '0011_update_proxy_permissions'),
+        ('auth', '0011_update_proxy_permissions'),
     ]
 
     operations = [
@@ -53,24 +52,24 @@ class Migration(migrations.Migration):
                 ('updated_at', models.DateTimeField(auto_now=True)),
             ],
         ),
-	    migrations.CreateModel(
-		    name='MyUser',
-		    fields=[
-			    ('user_ptr',
-			     models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True,
-			                          primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
-			    ('game_build', models.PositiveIntegerField()),
-		    ],
-		    options={
-			    'verbose_name': 'user',
-			    'verbose_name_plural': 'users',
-			    'abstract': False,
-		    },
-		    bases=('auth.user',),
-		    managers=[
-			    ('objects', django.contrib.auth.models.UserManager()),
-		    ],
-	    ),
+        migrations.CreateModel(
+            name='MyUser',
+            fields=[
+                ('user_ptr',
+                 models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True,
+                                      primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('game_build', models.PositiveIntegerField()),
+            ],
+            options={
+                'verbose_name': 'user',
+                'verbose_name_plural': 'users',
+                'abstract': False,
+            },
+            bases=('auth.user',),
+            managers=[
+                ('objects', django.contrib.auth.models.UserManager()),
+            ],
+        ),
         migrations.CreateModel(
             name='Other',
             fields=[
@@ -85,7 +84,7 @@ class Migration(migrations.Migration):
             name='Test',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-	            ('name', models.CharField(default='game', editable=False, max_length=5, unique=True)),
+                ('name', models.CharField(default='game', editable=False, max_length=5, unique=True)),
                 ('actual_build', models.PositiveIntegerField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
@@ -94,15 +93,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Tower',
             fields=[
-	            ('identity', models.CharField(max_length=127, primary_key=True, serialize=False, unique=True)),
-	            ('name', models.CharField(max_length=127)),
-	            ('type',
-	             models.IntegerField(choices=[('GROUND', 1), ('FLYING', 2), ('ALL', 3), ('NONE', -1)], default='ALL')),
-	            ('level', models.PositiveIntegerField()),
+                ('identity', models.CharField(max_length=127, primary_key=True, serialize=False, unique=True)),
+                ('name', models.CharField(max_length=127)),
+                ('type',
+                 models.IntegerField(choices=[('GROUND', 1), ('FLYING', 2), ('ALL', 3), ('NONE', -1)], default='ALL')),
+                ('level', models.PositiveIntegerField()),
                 ('attack_damage', models.PositiveIntegerField()),
                 ('fire_rate', models.FloatField()),
-	            ('attack_distance', models.FloatField()),
-	            ('price', models.PositiveIntegerField()),
+                ('attack_distance', models.FloatField()),
+                ('price', models.PositiveIntegerField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
             ],
@@ -117,9 +116,9 @@ class Migration(migrations.Migration):
                 ('points', models.PositiveIntegerField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-	            ('identity',
-	             models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ServerSide.MyUser', unique=True,
-	                               verbose_name='user')),
+                ('identity',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ServerSide.MyUser', unique=True,
+                                   verbose_name='user')),
             ],
         ),
         migrations.CreateModel(
@@ -131,7 +130,9 @@ class Migration(migrations.Migration):
                 ('validationTimeFrom', models.DateField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('player_address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ServerSide.Player', verbose_name='player_address')),
+                ('player_address',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ServerSide.Player',
+                                   verbose_name='player_address')),
             ],
         ),
     ]

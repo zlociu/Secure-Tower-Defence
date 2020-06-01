@@ -112,7 +112,6 @@ def setup(request):
 
 
 def update_stats(request):
-
     identity = request.POST['player']
     new_level = request.POST['level']
 
@@ -129,7 +128,6 @@ def update_stats(request):
 
 
 def create_tower(request):
-
     identity = request.POST['identity']
     name = request.POST['name']
     tower_type = request.POST['type']
