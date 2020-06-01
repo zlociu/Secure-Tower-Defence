@@ -35,16 +35,16 @@ def get_full_new_version():
 
     print(path)
 
-    with ZipFile(path, "r") as zip:
-        zip.extractall(dst_path)
+    with ZipFile(path, "r") as zip_file:
+        zip_file.extractall(dst_path)
 
     os.remove(path)
 
 
-def request_update(login):
+def request_update(usr_login):
     url = 'http://127.0.0.1:8000/request_update'
 
-    response = requests.get(f"{url}/{login}", stream=True)
+    response = requests.get(f"{url}/{usr_login}", stream=True)
 
     new_build = response.cookies['build']
 
@@ -59,20 +59,20 @@ def request_update(login):
 
     print(new_build)
 
-    with ZipFile(path, "r") as zip:
-        zip.extractall(dst_path)
+    with ZipFile(path, "r") as zip_file:
+        zip_file.extractall(dst_path)
 
 
-def register(login, passwd):
-    content = {"username": login, "password": passwd}
+def register(reg_usr_login, passwd):
+    content = {"username": reg_usr_login, "password": passwd}
 
-    r = requests.post('http://127.0.0.1:8000/register', data=content)
+    requests.post('http://127.0.0.1:8000/register', data=content)
 
 
-def login(login, passwd):
-    content = {"username": login, "password": passwd}
+def login(lg_usr_login, passwd):
+    content = {"username": lg_usr_login, "password": passwd}
 
-    r = requests.post('http://127.0.0.1:8000/login', data=content)
+    requests.post('http://127.0.0.1:8000/login', data=content)
 
 
 if __name__ == '__main__':

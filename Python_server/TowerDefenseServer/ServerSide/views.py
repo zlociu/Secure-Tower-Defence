@@ -79,11 +79,7 @@ def setup(request):
     try:
         Test.objects.create(actual_build=0)
 
-        MyUser.objects.create(
-            username="test_user_1",
-                            password="admin",
-                            game_build=0,
-                            )
+        MyUser.objects.create(username="test_user_1", password="admin", game_build=0)
 
         user = MyUser.objects.get(username="test_user_1")
 
@@ -330,7 +326,7 @@ def submit_update(request):
     music_files = []
     other_files = []
 
-    ### List all files
+    # List all files
 
     for r, d, f in os.walk(thisdir):
         for file in f:
@@ -341,7 +337,7 @@ def submit_update(request):
             else:
                 other_files.append(os.path.join(r, file))
 
-    ### Clean undesired files
+    # Clean undesired files
 
     g_all = Graphic.objects.all()
     m_all = Music.objects.all()
@@ -359,7 +355,7 @@ def submit_update(request):
         if o.path not in other_files:
             Other.objects.get(path=o.path).delete()
 
-    ### Update database
+    # Update database
 
     for f in graphic_files:
         try:
