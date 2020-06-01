@@ -14,7 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+
 from ServerSide.views import (
     login_user,
     setup,
@@ -25,7 +26,6 @@ from ServerSide.views import (
     serve_new_instance,
     register,
 )
-
 
 urlpatterns = [
     # Admin
@@ -43,5 +43,5 @@ urlpatterns = [
     # Updates
     path('download_full_game', serve_new_instance),
     path('submit_update', submit_update),
-    path('request_update/<str:user_identity>', serve_newest_update),
+    path('request_update/<str:username>', serve_newest_update),
 ]

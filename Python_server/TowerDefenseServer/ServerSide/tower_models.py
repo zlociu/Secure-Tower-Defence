@@ -1,4 +1,3 @@
-import json
 from django.db import models
 
 
@@ -16,7 +15,7 @@ class Tower(models.Model):
         (NONE, -1),
     ]
 
-    identity = models.CharField(max_length=127, unique=True,primary_key=True)
+    identity = models.CharField(max_length=127, unique=True, primary_key=True)
     name = models.CharField(max_length=127)
     type = models.IntegerField(choices=TOWER_TYPES, default=ALL)
     level = models.PositiveIntegerField()

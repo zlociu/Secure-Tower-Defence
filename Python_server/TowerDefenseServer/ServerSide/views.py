@@ -1,55 +1,47 @@
+import os
 import zipfile
 from datetime import datetime
-import os
-from os import listdir
-from os.path import isfile, join
-from hashlib import sha256
-from hashlib import sha1
 
 import django
 from django.contrib.auth import authenticate, logout, login
 from django.db.utils import IntegrityError
-from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
-from django.http import FileResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.models import User
-# Create your views here.
 
+from ServerSide.game_models import Map
 from ServerSide.game_models import Mob
-from ServerSide.setter_models import (
-    Test,
-    #     User,
-    #     KeysRegister
-)
-# from ServerSide.user_models import (
-#     User
-# )
-
-from ServerSide.tower_models import (
-    Tower
-)
-
-from ServerSide.player_models import (
-    Player
-)
 from ServerSide.graphics_models import (
     Graphic,
     Music,
     Other,
 )
-from ServerSide.game_models import Map
+from ServerSide.player_models import (
+    Player
+)
+from ServerSide.setter_models import (
+    Test,
+)
+from ServerSide.tower_models import (
+    Tower
+)
+from .user_models import MyUser
 
 
 @csrf_exempt
 def register(request):
-    login = request.POST['login']
+    username = request.POST['username']
     passwd = request.POST['password']
 
+    print(username)
+    print(passwd)
+
+    game_build = Test.objects.get(name="game").actual_build
+
     try:
-        user = User.objects.create_user(username=login, password=passwd)
+        MyUser.objects.create_user(username=username, password=passwd, game_build=game_build)
         response = JsonResponse({"User": "Created"})
         response.status_code = 200
+        print("register OK")
     except django.db.utils.IntegrityError:
         response = JsonResponse({"User": "Already exists"})
         response.status_code = 403
@@ -59,14 +51,13 @@ def register(request):
 
 @csrf_exempt
 def login_user(request):
-
-    username = request.POST['login']
+    username = request.POST['username']
     password = request.POST['password']
     user = authenticate(request, username=username, password=password)
     if user is not None:
         login(request, user)
         response = JsonResponse({"User": "Logged"})
-        response.status_code = 200
+        response.status_code = 201
     else:
         response = JsonResponse({"User": "Invalid login"})
         response.status_code = 403
@@ -88,15 +79,13 @@ def setup(request):
     try:
         Test.objects.create(actual_build=0)
 
-        User.objects.create(identity="test_user_1",
-                            login="test_user",
+        MyUser.objects.create(
+            username="test_user_1",
                             password="admin",
                             game_build=0,
-                            public_key="public_key",
-                            private_key="private_key"
                             )
 
-        user = User.objects.get(identity="test_user_1")
+        user = MyUser.objects.get(username="test_user_1")
 
         Player.objects.create(identity=user,
                               user_address="user_address_1",
@@ -105,7 +94,7 @@ def setup(request):
                               points=0
                               )
 
-        player = Player.objects.get(user_address="user_address_1")
+        Player.objects.get(user_address="user_address_1")
 
         Mob.objects.create(
             name="mob",
@@ -124,26 +113,6 @@ def setup(request):
         response = JsonResponse({"udane": "nie"})
 
     return response
-
-#
-# def register(request):
-#     # odebranie klucza publicznego - dopisanie do bazy
-#
-#     login = request.POST['login']
-#     passwd_hash = request.POST['pass_hash']
-#     public_key = request.POST['public_key']
-#
-#     is_created = User.objects.get_or_create(login=login, password=passwd_hash, public_key=public_key,
-#                                             game_build=Test.actual_build, identity=sha1(login).hexdigest())
-#
-#     if is_created:
-#         response = JsonResponse({"User": "Already exists"})
-#         response.status_code = 403
-#     else:
-#         response = JsonResponse({"User": "Created"})
-#         response.status_code = 200
-#
-#     return response
 
 
 def update_stats(request):
@@ -167,7 +136,7 @@ def create_tower(request):
 
     identity = request.POST['identity']
     name = request.POST['name']
-    type = request.POST['type']
+    tower_type = request.POST['type']
     level = request.POST['level']
     attack_damage = request.POST['attack_damage']
     attack_distance = request.POST['attack_distance']
@@ -177,7 +146,7 @@ def create_tower(request):
     is_created = Tower.objects.get_or_create(
         identity=identity,
         name=name,
-        type=type,
+        type=tower_type,
         level=level,
         attack_damage=attack_damage,
         attack_distance=attack_distance,
@@ -247,33 +216,6 @@ def create_mob(request):
         response.status_code = 200
 
     return response
-
-
-# @csrf_exempt
-# def login(request):
-#     """
-#     url: "/login"
-#
-#     :param request: POST{"login": login, "pass": password}
-#     :return:
-#     {"login": Accepted} if login successful, status code: 200
-#     {"login": Declined} if login unsuccessful, status code: 403
-#     """
-#     login = request.POST["login"]
-#     password = request.POST["password"]
-#
-#     usr = User.objects.filter(login=login, password=password)
-#
-#     print(usr.all())
-#
-#     if usr:
-#         response = JsonResponse({"login": "Accepted"})
-#         response.status_code = 200
-#     else:
-#         response = JsonResponse({"login": "Declined"})
-#         response.status_code = 403
-#
-#     return response
 
 
 @csrf_exempt
@@ -451,17 +393,17 @@ def submit_update(request):
     return response
 
 
-def serve_newest_update(request, user_identity):
+def serve_newest_update(request, username):
     """
     user_identity - unique user id.
     System for updating game files.
     url: /request_update/user_identity
     :param request: GET
-    :param user_identity:
+    :param username:
     :return:
     """
 
-    user = User.objects.get(identity=user_identity)
+    user = MyUser.objects.get(username=username)
     user_build = user.game_build
 
     actual_build = Test.objects.get(name="game").actual_build
@@ -488,6 +430,8 @@ def serve_newest_update(request, user_identity):
         response = HttpResponse(content_type='application/zip')
 
         response.set_cookie("build", actual_build)
+
+        print(response.cookies['build'])
 
         zip_file = zipfile.ZipFile(response, 'w')
         for filename in files:

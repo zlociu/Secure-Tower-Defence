@@ -1,33 +1,7 @@
-import requests
-from zipfile import ZipFile
 import os
+from zipfile import ZipFile
 
-# TODO GUI Client
-
-def login():
-
-    while True:
-        patch = input("wpisz")
-
-        if patch == "y":
-
-            login = "test_user"
-            password = "admin"
-
-        elif patch == "n":
-            login = "nie"
-            password = "nie"
-
-        elif patch == "1":
-            login = input("login: ")
-            password = input("password: ")
-
-        else:
-            break
-        r = requests.post('http://127.0.0.1:8000/login', {"login": login, "pass": password})
-
-        print(r)
-        print(r.content)
+import requests
 
 
 def send_map(map_array):
@@ -47,10 +21,10 @@ def request_map(map_addr):
 
 
 def get_full_new_version():
-    url = 'http://127.0.0.1:8000/request_update'
+    url = 'http://127.0.0.1:8000/download_full_game'
 
-    path = "client_files/files.zip"
-    dst_path = "client_files/files"
+    path = "client_files\\files.zip"
+    dst_path = "client_files\\files"
 
     response = requests.get(url, stream=True)
     handle = open(path, "wb")
@@ -59,18 +33,18 @@ def get_full_new_version():
             handle.write(chunk)
     handle.close()
 
+    print(path)
+
     with ZipFile(path, "r") as zip:
         zip.extractall(dst_path)
 
     os.remove(path)
 
 
-def request_update():
+def request_update(login):
     url = 'http://127.0.0.1:8000/request_update'
 
-    identity = "test_user_1"
-
-    response = requests.get(f"{url}/{identity}", stream=True)
+    response = requests.get(f"{url}/{login}", stream=True)
 
     new_build = response.cookies['build']
 
@@ -88,18 +62,15 @@ def request_update():
     with ZipFile(path, "r") as zip:
         zip.extractall(dst_path)
 
-    # os.remove(path)
-
 
 def register(login, passwd):
-
-    content = {"login": login, "password": passwd}
+    content = {"username": login, "password": passwd}
 
     r = requests.post('http://127.0.0.1:8000/register', data=content)
 
 
 def login(login, passwd):
-    content = {"login": login, "password": passwd}
+    content = {"username": login, "password": passwd}
 
     r = requests.post('http://127.0.0.1:8000/login', data=content)
 
@@ -111,7 +82,8 @@ if __name__ == '__main__':
     # send_map(map_array)
     # map_addr = "random_address"
     # request_map(map_addr)
+
+    register("3", "abcde")
+    login("3", "abcde")
     # get_full_new_version()
-    # request_update()
-    register("user2", "abcde")
-    login("user1", "abcde")
+    request_update("3")
