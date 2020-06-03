@@ -233,7 +233,6 @@ def map_upload(request):
         print(map_arr)
 
         Map.objects.get_or_create(
-            map_address="random_address",
             player_address=player,
             map_array=map_arr,
             validationTimeFrom=datetime.now())
@@ -314,8 +313,18 @@ def submit_update(request):
     {"update": "ok"}, status code 200
     """
     t = Test.objects.get(name="game")
-    t.actual_build = t.actual_build + 1
-    ver = t.actual_build
+    date = datetime.now()
+
+    _, _, r1, r2, _, m1, m2, _, d1, d2, *_ = str(date)
+
+    build = ""
+
+    build = build + r1 + r2 + m1 + m2 + d1 + d2
+
+    print(build)
+
+    t.actual_build = ver = build
+
     t.save()
 
     thisdir = "TowerDefense\\Packages"
@@ -387,22 +396,20 @@ def submit_update(request):
     return response
 
 
-def serve_newest_update(request, username):
+def serve_newest_update(request):
     """
     user_identity - unique user id.
     System for updating game files.
     url: /request_update/user_identity
     :param request: GET
-    :param username:
     :return:
     """
 
-    user = MyUser.objects.get(username=username)
-    user_build = user.game_build
+    version = int(request.GET.get('version', '0'))
 
     actual_build = Test.objects.get(name="game").actual_build
 
-    if user_build == actual_build:
+    if version >= actual_build:
         response = JsonResponse({"status": "aktualne"})
         response.status_code = 200
 
@@ -415,9 +422,9 @@ def serve_newest_update(request, username):
 
         zip_name = f"update_{actual_build}"
 
-        [files.append(b.path) for b in all_graphic if b.build > user_build]
-        [files.append(b.path) for b in all_music if b.build > user_build]
-        [files.append(b.path) for b in all_other if b.build > user_build]
+        [files.append(b.path) for b in all_graphic if b.build > version]
+        [files.append(b.path) for b in all_music if b.build > version]
+        [files.append(b.path) for b in all_other if b.build > version]
 
         print(files)
 
@@ -434,7 +441,18 @@ def serve_newest_update(request, username):
 
         print(response.items())
 
-        user.game_build = actual_build
-        user.save()
+    return response
+
+
+def list_all_maps(request):
+    maps = Map.objects.all()
+
+    json = []
+
+    for m in maps:
+        json.append(m.map_array)
+
+    response = JsonResponse({"maps": json})
+    response.status_code = 200
 
     return response

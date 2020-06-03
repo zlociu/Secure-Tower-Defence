@@ -25,6 +25,7 @@ from ServerSide.views import (
     submit_update,
     serve_new_instance,
     register,
+    list_all_maps
 )
 
 urlpatterns = [
@@ -37,11 +38,12 @@ urlpatterns = [
     path('setup', setup),
 
     # Map
-    path('map_upload', map_upload),
-    path('map_download/<str:map_id>', map_download),
+    path('map-upload', map_upload),
+    path('map-download/<str:map-id>', map_download),
+    path('list-maps', list_all_maps),
 
     # Updates
-    path('download_full_game', serve_new_instance),
-    path('submit_update', submit_update),
-    path('request_update/<str:username>', serve_newest_update),
+    path('download-full-game', serve_new_instance),
+    path('submit-update', submit_update),
+    path('request-update/', serve_newest_update),
 ]
