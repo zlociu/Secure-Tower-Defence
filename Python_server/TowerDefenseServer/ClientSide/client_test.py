@@ -15,19 +15,21 @@ def send_map(map_array):
 
 
 def request_map(map_addr):
-	r = requests.get(f'http://127.0.0.1:8000/map-download/{map_addr}')
+    r = requests.get(f'http://127.0.0.1:8000/map-download/{map_addr}')
 
     print(r.json())
 
 
 def get_full_new_version():
-	url = 'http://127.0.0.1:8000/download-full-game'
+    url = 'http://127.0.0.1:8000/download-full-game'
 
     path = "client_files\\files.zip"
     dst_path = "client_files\\files"
 
     response = requests.get(url, stream=True)
+
     handle = open(path, "wb")
+
     for chunk in response.iter_content(chunk_size=512):
         if chunk:
             handle.write(chunk)
@@ -42,36 +44,36 @@ def get_full_new_version():
 
 
 def request_update():
-	url = 'http://127.0.0.1:8000/request-update'
+    url = 'http://127.0.0.1:8000/request-update'
 
-	date = datetime.now()
+    date = datetime.now()
 
-	_, _, r1, r2, _, m1, m2, _, d1, d2, *_ = str(date)
+    _, _, r1, r2, _, m1, m2, _, d1, d2, *_ = str(date)
 
-	build = ""
+    build = ""
 
-	build = build + r1 + r2 + m1 + m2 + d1 + d2
+    build = build + r1 + r2 + m1 + m2 + d1 + d2
 
-	response = requests.get(f"{url}/?version={build}", stream=True)
+    response = requests.get(f"{url}/?version={build}", stream=True)
 
-	try:
-		new_build = response.cookies['build']
+    try:
+        new_build = response.cookies['build']
 
-		path = f"client_files/update_{new_build}.zip"
-		dst_path = "client_files/files"
+        path = f"client_files/update_{new_build}.zip"
+        dst_path = "client_files/files"
 
-		handle = open(path, "wb")
-		for chunk in response.iter_content(chunk_size=512):
-			if chunk:
-				handle.write(chunk)
-		handle.close()
+        handle = open(path, "wb")
+        for chunk in response.iter_content(chunk_size=512):
+            if chunk:
+                handle.write(chunk)
+        handle.close()
 
-		print(new_build)
+        print(new_build)
 
-		with ZipFile(path, "r") as zip_file:
-			zip_file.extractall(dst_path)
-	except KeyError:
-		print("Aktualne")
+        with ZipFile(path, "r") as zip_file:
+            zip_file.extractall(dst_path)
+    except KeyError:
+        print("Aktualne")
 
 
 def register(reg_usr_login, passwd):
@@ -91,12 +93,12 @@ if __name__ == '__main__':
     # login()
     map_array = "1; 1; 1; 1; 1; 2; 2; 2; 2; 2; 3; 3; 3; 3; 3; 4; 4; 4; 4; 4; 5; 5; 5; 5; 5"
     map_array2 = "09494949494949494994"
-    # send_map(map_array)
-    # send_map(map_array2)
-    # map_addr = "random_address"
-    # request_map(map_addr)
-    #
+    send_map(map_array)
+    send_map(map_array2)
+    map_addr = "1"
+    request_map(map_addr)
+
     register("3", "abcde")
     login("3", "abcde")
-    # # get_full_new_version()
-    # request_update()
+    # get_full_new_version()
+    request_update()

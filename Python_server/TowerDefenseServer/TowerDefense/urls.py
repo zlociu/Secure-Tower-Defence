@@ -39,7 +39,7 @@ urlpatterns = [
 
     # Map
     path('map-upload', map_upload),
-    path('map-download/<str:map-id>', map_download),
+    path('map-download/<str:map_id>', map_download),
     path('list-maps', list_all_maps),
 
     # Updates

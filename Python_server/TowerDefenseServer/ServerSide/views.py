@@ -260,7 +260,7 @@ def map_download(request, map_id):
     {"map": "Failed"}, status code 403
     """
     try:
-        map_obj = Map.objects.get(map_address=map_id)
+        map_obj = Map.objects.get(pk=map_id)
         response = JsonResponse({"map": map_obj.map_array})
         response.status_code = 200
     except:
@@ -274,7 +274,7 @@ def serve_new_instance(request):
     """
     Used for new user, that wants to download game.
 
-    url: /download_full_game
+    url: /download-full-game
 
     :param request: GET
     :return:
@@ -284,6 +284,8 @@ def serve_new_instance(request):
 
     filenames = []
     zipfile_name = "zip_z_plikami"
+
+    print("XDDDDDDD")
 
     for f in files.all():
         filenames.append(f.path)
