@@ -407,14 +407,13 @@ def serve_newest_update(request):
     :return:
     """
 
-    version = int(request.GET.get('version', '0'))
+    version = int(request.GET.get('version', '-1'))
 
     actual_build = Test.objects.get(name="game").actual_build
 
     if version >= actual_build:
         response = JsonResponse({"status": "aktualne"})
         response.status_code = 200
-
     else:
         files = []
 
