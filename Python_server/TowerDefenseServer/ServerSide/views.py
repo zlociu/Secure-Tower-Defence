@@ -61,6 +61,7 @@ def logout_view(request):
     logout(request)
 
 
+# noinspection PyBroadException
 def setup(request):
     """
     url: /setup
@@ -97,7 +98,7 @@ def setup(request):
             spawn_time=22)
 
         response = JsonResponse({"success": True})
-    except:
+    except Exception:
         response = JsonResponse({"success": False})
 
     return response
@@ -204,6 +205,7 @@ def create_mob(request):
     return response
 
 
+# noinspection PyBroadException
 @csrf_exempt
 def map_upload(request):
     """
@@ -234,13 +236,14 @@ def map_upload(request):
 
         response = JsonResponse({"status": "map successfully loaded"})
         response.status_code = 201
-    except:
+    except Exception:
         response = JsonResponse({"status": "error loading map"})
         response.status_code = 400
 
     return response
 
 
+# noinspection PyBroadException
 @csrf_exempt
 def map_download(request):
     """
@@ -260,7 +263,7 @@ def map_download(request):
             map_json: dict = json.loads(f.read())
         response = JsonResponse(map_json)
         response.status_code = 200
-    except:
+    except Exception:
         response = JsonResponse({"map": "failed"})
         response.status_code = 404
 

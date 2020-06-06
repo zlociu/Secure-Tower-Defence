@@ -3,4 +3,4 @@ from django.db import models
 
 
 class MyUser(User):
-	game_build = models.PositiveIntegerField()
+    game_build = models.PositiveIntegerField()

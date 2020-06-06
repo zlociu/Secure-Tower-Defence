@@ -75,8 +75,8 @@ def request_update():
         print("Up-to-date")
 
 
-def register(reg_usr_login, passwd):
-    content = {"username": reg_usr_login, "password": passwd}
+def register(reg_usr_login, password):
+    content = {"username": reg_usr_login, "password": password}
 
     requests.post('http://127.0.0.1:8000/register', data=content)
 
