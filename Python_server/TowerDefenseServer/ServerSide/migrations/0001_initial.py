@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+# noinspection DuplicatedCode
 class Migration(migrations.Migration):
     initial = True
 
@@ -125,14 +126,10 @@ class Migration(migrations.Migration):
             name='Map',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('map_address', models.CharField(max_length=127, unique=True)),
-                ('map_array', models.CharField(max_length=512)),
+                ('path', models.CharField(max_length=200, unique=True)),
                 ('validationTimeFrom', models.DateField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('player_address',
-                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ServerSide.Player',
-                                   verbose_name='player_address')),
             ],
         ),
     ]

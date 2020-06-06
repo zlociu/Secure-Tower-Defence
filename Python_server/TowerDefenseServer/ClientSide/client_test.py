@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 from zipfile import ZipFile
@@ -5,17 +6,15 @@ from zipfile import ZipFile
 import requests
 
 
-def send_map(map_array):
-
-    content = {"map": map_array, "player_address": "player_address_1"}
-
-    r = requests.post('http://127.0.0.1:8000/map-upload', data=content)
+def send_map(map_array, map_path):
+    content = {"map": map_array, "path": map_path}
+    r = requests.post('http://127.0.0.1:8000/map-upload', data=json.dumps(content))
 
     print(r.json())
 
 
-def request_map(map_addr):
-    r = requests.get(f'http://127.0.0.1:8000/map-download/{map_addr}')
+def request_map(map_path):
+    r = requests.get(f'http://127.0.0.1:8000/map-download?path={map_path}')
 
     print(r.json())
 
@@ -54,7 +53,7 @@ def request_update():
 
     build = build + r1 + r2 + m1 + m2 + d1 + d2
 
-    response = requests.get(f"{url}/?version={build}", stream=True)
+    response = requests.get(f"{url}?version={build}", stream=True)
 
     try:
         new_build = response.cookies['build']
@@ -73,7 +72,7 @@ def request_update():
         with ZipFile(path, "r") as zip_file:
             zip_file.extractall(dst_path)
     except KeyError:
-        print("Aktualne")
+        print("Up-to-date")
 
 
 def register(reg_usr_login, passwd):
@@ -89,14 +88,25 @@ def login(lg_usr_login, passwd):
 
 
 if __name__ == '__main__':
-
     # login()
-    map_array = "1; 1; 1; 1; 1; 2; 2; 2; 2; 2; 3; 3; 3; 3; 3; 4; 4; 4; 4; 4; 5; 5; 5; 5; 5"
-    map_array2 = "09494949494949494994"
-    send_map(map_array)
-    send_map(map_array2)
-    map_addr = "1"
-    request_map(map_addr)
+    map_array1 = [
+        {"row": [0, 0, 0, 0]},
+        {"row": [1, 1, 0, 0]},
+        {"row": [0, 1, 1, 0]},
+        {"row": [0, 0, 0, 0]}
+    ]
+    map_array2 = [
+        {"row": [0, 0, 0, 0, 0, 0]},
+        {"row": [1, 1, 0, 0, 0, 0]},
+        {"row": [0, 1, 0, 0, 0, 0]},
+        {"row": [0, 1, 1, 1, 1, 0]},
+        {"row": [0, 0, 0, 0, 1, 0]},
+        {"row": [0, 1, 1, 1, 1, 0]},
+        {"row": [0, 0, 0, 0, 0, 0]}
+    ]
+    send_map(map_array1, 'map1')
+    send_map(map_array2, 'map2')
+    request_map('map2')
 
     register("3", "abcde")
     login("3", "abcde")

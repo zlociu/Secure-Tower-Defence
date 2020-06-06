@@ -1,11 +1,8 @@
 from django.db import models
 
-from .player_models import Player
-
 
 class Map(models.Model):
-    player_address = models.ForeignKey(Player, on_delete=models.CASCADE, verbose_name="player_address")
-    map_array = models.CharField(max_length=512)
+    path = models.CharField(max_length=200, unique=True)
     validationTimeFrom = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -29,4 +26,3 @@ class Mob(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-

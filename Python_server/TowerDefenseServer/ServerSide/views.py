@@ -1,6 +1,8 @@
+import json
 import os
 import zipfile
 from datetime import datetime
+from pathlib import Path
 
 import django
 from django.contrib.auth import authenticate, logout, login
@@ -8,23 +10,13 @@ from django.db.utils import IntegrityError
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from ServerSide.game_models import Map
-from ServerSide.game_models import Mob
-from ServerSide.graphics_models import (
-    Graphic,
-    Music,
-    Other,
-)
-from ServerSide.player_models import (
-    Player
-)
-from ServerSide.setter_models import (
-    Test,
-)
-from ServerSide.tower_models import (
-    Tower
-)
-from .user_models import MyUser
+from ServerSide.models.game_models import Map
+from ServerSide.models.game_models import Mob
+from ServerSide.models.graphics_models import Graphic, Music, Other
+from ServerSide.models.player_models import Player
+from ServerSide.models.setter_models import Test
+from ServerSide.models.tower_models import Tower
+from ServerSide.models.user_models import MyUser
 
 
 @csrf_exempt
@@ -104,9 +96,9 @@ def setup(request):
             points_remaining=24,
             spawn_time=22)
 
-        response = JsonResponse({"udane": "setup"})
+        response = JsonResponse({"success": True})
     except:
-        response = JsonResponse({"udane": "nie"})
+        response = JsonResponse({"success": False})
 
     return response
 
@@ -219,53 +211,58 @@ def map_upload(request):
 
     map_array - map array written as positive integers, separated with ";".
     player_address - field in Player object.
-    :param request: POST {"map": map_array, "player_address": player_address}
+    :param request: POST {"map": map_array, "path": player_address}
     :return:
-    {"status": "Map successfully loaded"}, status code: 200
-    {"status": "Error loading map"}, status code: 404
+    {"status": "map successfully loaded"}, status code: 201
+    {"status": "error loading map"}, status code: 400
     """
-    map_arr = request.POST["map"]
-    player_address = request.POST["player_address"]
+    content_json = json.loads(request.body)
+    map_array = content_json["map"]
+    map_path: str = content_json["path"]
 
     try:
-        player = Player.objects.get(player_address=player_address)
+        print(map_array)
 
-        print(map_arr)
+        if map_path.endswith(".json"):
+            map_path -= ".json"
 
-        Map.objects.get_or_create(
-            player_address=player,
-            map_array=map_arr,
-            validationTimeFrom=datetime.now())
+        Path("resources/maps/").mkdir(parents=True, exist_ok=True)
+        with open(f"resources/maps/{map_path}.json", "w+") as f:
+            f.write(json.dumps({'map': map_array}))
 
-        response = JsonResponse({"status": "Map successfully loaded"})
-        response.status_code = 200
+        Map.objects.update_or_create(path=map_path, validationTimeFrom=datetime.now())
+
+        response = JsonResponse({"status": "map successfully loaded"})
+        response.status_code = 201
     except:
-        response = JsonResponse({"status": "Error loading map"})
-        response.status_code = 404
+        response = JsonResponse({"status": "error loading map"})
+        response.status_code = 400
 
     return response
 
 
 @csrf_exempt
-def map_download(request, map_id):
+def map_download(request):
     """
     map_addr - Map identifier. Field in Map object.
 
-    url: /map_download/{map_addr}
+    url: /map_download?path={map_path}
 
     :param request: GET
-    :param map_id: map_addr
     :return:
     {"map": map_obj.map_array}, status code 200
-    {"map": "Failed"}, status code 403
+    {"map": "Failed"}, status code 404
     """
     try:
-        map_obj = Map.objects.get(pk=map_id)
-        response = JsonResponse({"map": map_obj.map_array})
+        map_path = str(request.GET.get('path'))
+        map_obj = Map.objects.get(path=map_path)
+        with open(f"resources/maps/{map_obj.path}.json", "r") as f:
+            map_json: dict = json.loads(f.read())
+        response = JsonResponse(map_json)
         response.status_code = 200
     except:
-        response = JsonResponse({"map": "Failed"})
-        response.status_code = 403
+        response = JsonResponse({"map": "failed"})
+        response.status_code = 404
 
     return response
 
@@ -402,7 +399,7 @@ def serve_newest_update(request):
     """
     user_identity - unique user id.
     System for updating game files.
-    url: /request_update/user_identity
+    url: /request_update?version={version}
     :param request: GET
     :return:
     """
@@ -412,7 +409,7 @@ def serve_newest_update(request):
     actual_build = Test.objects.get(name="game").actual_build
 
     if version >= actual_build:
-        response = JsonResponse({"status": "aktualne"})
+        response = JsonResponse({"status": "up-to-date"})
         response.status_code = 200
     else:
         files = []
@@ -448,12 +445,12 @@ def serve_newest_update(request):
 def list_all_maps(request):
     maps = Map.objects.all()
 
-    json = []
+    map_list = []
 
     for m in maps:
-        json.append(m.map_array)
+        map_list.append(m.path)
 
-    response = JsonResponse({"maps": json})
+    response = JsonResponse({"maps": map_list})
     response.status_code = 200
 
     return response
