@@ -21,7 +21,7 @@ public class RegisterButton : MonoBehaviour, IPointerUpHandler
 
         Dictionary<string, string> registerDict = new Dictionary<string, string>
         {
-            {"login", _usernameInput.text}, {"password", _passwordInput.text}
+            {"username", _usernameInput.text}, {"password", _passwordInput.text}
         };
 
         UnityWebRequest request = UnityWebRequest.Post("http://127.0.0.1:8000/register", registerDict);
@@ -31,7 +31,7 @@ public class RegisterButton : MonoBehaviour, IPointerUpHandler
             new WaitForSeconds(0.5f);
         }
 
-        if (request.responseCode == 200)
+        if (request.responseCode == 201)
         {
             SceneManager.LoadScene("Scenes/LoginMenuScene", LoadSceneMode.Single);
         }

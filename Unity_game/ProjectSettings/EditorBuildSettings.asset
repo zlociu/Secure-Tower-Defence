@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/RegistrationMenuScene.unity
     guid: 23541a2739071ef4b9b75ec1b74b99b2
+  - enabled: 1
+    path: Assets/Scenes/MapSelectionMenu.unity
+    guid: 2505d462bb674ef4c943cbb5e54bdd18
   m_configObjects: {}

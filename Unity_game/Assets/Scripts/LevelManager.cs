@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Assets.Scripts.Utils;
 using UnityEngine;
 
 namespace Assets.Scripts
 {
     public class LevelManager : MonoBehaviour
     {
-        [SerializeField] private List<GameObject> _tiles;
+        private Dictionary<int, GameObject> _tiles;
+        [SerializeField] private GameObject _pathTilePrefab;
+        [SerializeField] private GameObject _terrainTilePrefab;
         [SerializeField] private GameObject _base;
         [SerializeField] private GameObject _enemy;
         [SerializeField] private GameObject _lifeUiGroup;
@@ -17,34 +20,16 @@ namespace Assets.Scripts
         private GameObject _pathTilesGroup;
 
         private Vector2Int _spawnCoords;
-        public float SpawnPeriod;
+        public float SpawnPeriod = 2;
 
-        private List<List<int>> _tileMap = new List<List<int>>
-        {
-            new List<int> {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            new List<int> {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-            new List<int> {1, 1, 0, 0, 0, 0, 0, 0, 1, 0},
-            new List<int> {0, 0, 0, 1, 1, 1, 0, 0, 1, 0},
-            new List<int> {0, 0, 0, 1, 0, 1, 1, 1, 1, 0},
-            new List<int> {0, 1, 1, 1, 0, 0, 0, 0, 0, 0},
-            new List<int> {0, 1, 0, 0, 0, 1, 1, 1, 1, 0},
-            new List<int> {0, 1, 0, 0, 0, 1, 0, 0, 1, 0},
-            new List<int> {0, 1, 1, 1, 1, 1, 0, 0, 1, 0},
-            new List<int> {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-        };
+        private readonly List<List<int>> _tileMap = GlobalVariables.CurrentMap.MapToList();
 
         private Bounds _bounds;
 
         // Start is called before the first frame update
         void Start()
         {
-            _bounds = new Bounds(transform.position, Vector3.one);
-
-            _waypointsGroup = new GameObject("waypoints");
-            _unitsGroup = new GameObject("units");
-            _terrainTilesGroup = new GameObject("terrain_tiles");
-            TurretCreation.UnitsGroup = _unitsGroup;
-            _pathTilesGroup = new GameObject("path_tiles");
+            SetupVariables();
             CreateLevel();
             CreateBase();
         }
@@ -61,6 +46,36 @@ namespace Assets.Scripts
             SpawnPeriod += Time.deltaTime;
         }
 
+        private void SetupVariables()
+        {
+            _tiles = new Dictionary<int, GameObject>();
+            LoadTileSprites();
+
+            _bounds = new Bounds(transform.position, Vector3.one);
+
+            _waypointsGroup = new GameObject("waypoints");
+            _unitsGroup = new GameObject("units");
+            _terrainTilesGroup = new GameObject("terrain_tiles");
+            TurretCreation.UnitsGroup = _unitsGroup;
+            _pathTilesGroup = new GameObject("path_tiles");
+        }
+
+        private void LoadTileSprites()
+        {
+            GameObject prefabs = new GameObject("prefabs");
+            foreach (KeyValuePair<int, string> entry in GlobalVariables.CurrentMap.TilesToDict())
+            {
+                GameObject prefab = entry.Key != 0 ? _terrainTilePrefab : _pathTilePrefab;
+                prefab = Instantiate(prefab);
+                prefab.GetComponent<SpriteRenderer>().sprite =
+                    ResourceUtil.LoadSprite(entry.Value);
+                _tiles.Add(entry.Key, prefab);
+                prefab.SetActive(false);
+                prefab.name = "prefab_" + entry.Key;
+                prefab.transform.parent = prefabs.transform;
+            }
+        }
+
         private void CreateLevel()
         {
             for (int y = 0; y < _tileMap.Count; y++)
@@ -72,11 +87,12 @@ namespace Assets.Scripts
                         "tile_" + x + "_" + y,
                         new Vector3Int(x, y, 0)
                     );
-                    if (_tileMap[y][x] == 0)
+                    tile.SetActive(true);
+                    if (_tileMap[y][x] == 1)
                     {
                         tile.transform.SetParent(_terrainTilesGroup.transform);
                     }
-                    else if (_tileMap[y][x] == 1)
+                    else if (_tileMap[y][x] == 0)
                     {
                         tile.transform.SetParent(_pathTilesGroup.transform);
                     }
@@ -106,7 +122,7 @@ namespace Assets.Scripts
             // Gets start coordinates
             for (int y = 0; y < _tileMap.Count - 1; y++)
             {
-                if (_tileMap[y][0] == 1)
+                if (_tileMap[y][0] == 0)
                 {
                     startCoords.x = 0;
                     startCoords.y = y;
@@ -114,7 +130,7 @@ namespace Assets.Scripts
                     _spawnCoords.x -= 1;
                     break;
                 }
-                else if (_tileMap[y][_tileMap[y].Count - 1] == 1)
+                else if (_tileMap[y][_tileMap[y].Count - 1] == 0)
                 {
                     startCoords.x = _tileMap[y].Count - 1;
                     startCoords.y = y;
@@ -198,25 +214,25 @@ namespace Assets.Scripts
                 Vector2Int downCoords = new Vector2Int(currentCoords.x, currentCoords.y - 1);
                 Vector2Int leftCoords = new Vector2Int(currentCoords.x - 1, currentCoords.y);
                 Vector2Int rightCoords = new Vector2Int(currentCoords.x + 1, currentCoords.y);
-                if (upCoords != previousCoords && _tileMap[upCoords.y][upCoords.x] == 1)
+                if (upCoords != previousCoords && _tileMap[upCoords.y][upCoords.x] == 0)
                 {
                     previousCoords = currentCoords;
                     currentCoords = upCoords;
                     coordsName = "up";
                 }
-                else if (downCoords != previousCoords && _tileMap[downCoords.y][downCoords.x] == 1)
+                else if (downCoords != previousCoords && _tileMap[downCoords.y][downCoords.x] == 0)
                 {
                     previousCoords = currentCoords;
                     currentCoords = downCoords;
                     coordsName = "down";
                 }
-                else if (leftCoords != previousCoords && _tileMap[leftCoords.y][leftCoords.x] == 1)
+                else if (leftCoords != previousCoords && _tileMap[leftCoords.y][leftCoords.x] == 0)
                 {
                     previousCoords = currentCoords;
                     currentCoords = leftCoords;
                     coordsName = "left";
                 }
-                else if (rightCoords != previousCoords && _tileMap[rightCoords.y][rightCoords.x] == 1)
+                else if (rightCoords != previousCoords && _tileMap[rightCoords.y][rightCoords.x] == 0)
                 {
                     previousCoords = currentCoords;
                     currentCoords = rightCoords;

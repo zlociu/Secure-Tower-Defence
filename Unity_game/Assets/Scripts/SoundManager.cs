@@ -19,6 +19,7 @@ public class SoundManager : MonoBehaviour
 
     public void AddAudioSource(int instanceId, AudioClip clip)
     {
+        Debug.Log("Adding audio source: " + instanceId);
         AudioSource audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.clip = clip;
         _audioSources.Add(instanceId, audioSource);
@@ -31,6 +32,8 @@ public class SoundManager : MonoBehaviour
 
     public void RemoveAudioSource(int instanceId)
     {
+        Debug.Log("Removing audio source: " + instanceId);
+        Destroy(_audioSources[instanceId]);
         _audioSources.Remove(instanceId);
     }
 }
