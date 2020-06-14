@@ -88,7 +88,6 @@ def login(lg_usr_login, passwd):
 
 
 if __name__ == '__main__':
-    # login()
     map_array1 = [
         {"row": [0, 0, 0, 0]},
         {"row": [1, 1, 0, 0]},

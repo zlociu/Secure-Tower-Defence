@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class ServersideConfig(AppConfig):
-    name = 'ServerSide'
+    name = 'std_server'

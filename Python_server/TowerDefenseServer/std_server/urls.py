@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from ServerSide.views import (
+from std_server.views import (
     login_user,
     setup,
     map_upload,

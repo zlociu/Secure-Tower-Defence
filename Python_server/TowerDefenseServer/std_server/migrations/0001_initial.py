@@ -118,7 +118,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('identity',
-                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ServerSide.MyUser', unique=True,
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='std_server.MyUser', unique=True,
                                    verbose_name='user')),
             ],
         ),

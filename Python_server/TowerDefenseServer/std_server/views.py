@@ -11,13 +11,13 @@ from django.db.utils import IntegrityError
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from ServerSide.models.game_models import Map
-from ServerSide.models.game_models import Mob
-from ServerSide.models.graphics_models import Graphic, Music, Other
-from ServerSide.models.player_models import Player
-from ServerSide.models.setter_models import Test
-from ServerSide.models.tower_models import Tower
-from ServerSide.models.user_models import MyUser
+from std_server.models.game_models import Map
+from std_server.models.game_models import Mob
+from std_server.models.graphics_models import Graphic, Music, Other
+from std_server.models.player_models import Player
+from std_server.models.setter_models import Test
+from std_server.models.tower_models import Tower
+from std_server.models.user_models import MyUser
 
 
 @csrf_exempt
