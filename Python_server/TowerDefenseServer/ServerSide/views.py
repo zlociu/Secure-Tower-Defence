@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -32,11 +33,11 @@ def register(request):
     try:
         MyUser.objects.create_user(username=username, password=passwd, game_build=game_build)
         response = JsonResponse({"User": "Created"})
-        response.status_code = 200
+        response.status_code = 201
         print("register OK")
     except django.db.utils.IntegrityError:
         response = JsonResponse({"User": "Already exists"})
-        response.status_code = 403
+        response.status_code = 409
 
     return response
 
@@ -52,7 +53,7 @@ def login_user(request):
         response.status_code = 201
     else:
         response = JsonResponse({"User": "Invalid login"})
-        response.status_code = 403
+        response.status_code = 401
 
     return response
 
@@ -307,7 +308,7 @@ def submit_update(request):
     {path} = "TowerDefense\\Packages"
     Method, that updates game files.
 
-    url: /submit_update
+    url: /submit-update
 
     :param request: GET
     ver = version number : positive integer
@@ -329,22 +330,21 @@ def submit_update(request):
 
     t.save()
 
-    thisdir = "TowerDefense\\Packages"
-
     graphic_files = []
     music_files = []
     other_files = []
 
     # List all files
-
-    for r, d, f in os.walk(thisdir):
+    for r, d, f in os.walk(os.getcwd() + os.path.sep + "data"):
         for file in f:
+            file_path: str = os.path.join(r, file).replace("\\", "/")
+            file_path = "." + re.search(r".+(/data.+)", file_path).group(1)
             if file.endswith(".png"):
-                graphic_files.append(os.path.join(r, file))
+                graphic_files.append(file_path)
             elif file.endswith(".ogg"):
-                music_files.append(os.path.join(r, file))
+                music_files.append(file_path)
             else:
-                other_files.append(os.path.join(r, file))
+                other_files.append(file_path)
 
     # Clean undesired files
 
@@ -402,7 +402,7 @@ def serve_newest_update(request):
     """
     user_identity - unique user id.
     System for updating game files.
-    url: /request_update?version={version}
+    url: /request-update?version={version}
     :param request: GET
     :return:
     """
@@ -421,7 +421,7 @@ def serve_newest_update(request):
         all_music = Music.objects.all()
         all_other = Other.objects.all()
 
-        zip_name = f"update_{actual_build}"
+        zip_name = f"update_{actual_build}.zip"
 
         [files.append(b.path) for b in all_graphic if b.build > version]
         [files.append(b.path) for b in all_music if b.build > version]
@@ -430,7 +430,6 @@ def serve_newest_update(request):
         print(files)
 
         response = HttpResponse(content_type='application/zip')
-
         response.set_cookie("build", actual_build)
 
         print(response.cookies['build'])
