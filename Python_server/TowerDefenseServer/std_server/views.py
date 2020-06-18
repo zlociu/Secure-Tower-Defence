@@ -11,13 +11,12 @@ from django.db.utils import IntegrityError
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from std_server.models.game_models import Map
-from std_server.models.game_models import Mob
-from std_server.models.graphics_models import Graphic, Music, Other
-from std_server.models.player_models import Player
-from std_server.models.setter_models import Test
-from std_server.models.tower_models import Tower
-from std_server.models.user_models import MyUser
+from std_server.models.graphics_model import Graphic, Music
+from std_server.models.level_model import Level
+from std_server.models.player_model import Player
+from std_server.models.setter_model import Test
+from std_server.models.turret_model import Turret
+from std_server.models.user_model import MyUser
 
 
 @csrf_exempt
@@ -81,22 +80,9 @@ def setup(request):
                               user_address="user_address_1",
                               player_address="player_address_1",
                               level=0,
-                              points=0
-                              )
+                              points=0)
 
         Player.objects.get(user_address="user_address_1")
-
-        Mob.objects.create(
-            name="mob",
-            type=1,
-            attack_damage=10,
-            attack_range=10.0,
-            fire_rate=2.0,
-            health=100,
-            speed=23.3,
-            level=9,
-            points_remaining=24,
-            spawn_time=22)
 
         response = JsonResponse({"success": True})
     except Exception:
@@ -121,37 +107,6 @@ def update_stats(request):
     return response
 
 
-def create_tower(request):
-    identity = request.POST['identity']
-    name = request.POST['name']
-    tower_type = request.POST['type']
-    level = request.POST['level']
-    attack_damage = request.POST['attack_damage']
-    attack_distance = request.POST['attack_distance']
-    fire_rate = request.POST['fire_rate']
-    price = request.POST['price']
-
-    is_created = Tower.objects.get_or_create(
-        identity=identity,
-        name=name,
-        type=tower_type,
-        level=level,
-        attack_damage=attack_damage,
-        attack_distance=attack_distance,
-        fire_rate=fire_rate,
-        price=price
-    )
-
-    if is_created:
-        response = JsonResponse({"Tower": "Already exists"})
-        response.status_code = 403
-    else:
-        response = JsonResponse({"Tower": "Created"})
-        response.status_code = 200
-
-    return response
-
-
 def create_player(request):
     """
     Constructor
@@ -171,46 +126,11 @@ def create_player(request):
     )
 
 
-def create_mob(request):
-    name = request.POST['name']
-    _type = request.POST['type']
-    attack_damage = request.POST['attack_damage']
-    attack_range = request.POST['attack_range']
-    fire_rate = request.POST['fire_rate']
-    health = request.POST['health']
-    speed = request.POST['speed']
-    level = request.POST['level']
-    points_remaining = request.POST['points_remaining']
-    spawn_time = request.POST['spawn_time']
-
-    is_created = Mob.objects.get_or_create(
-        name=name,
-        type=_type,
-        attack_damage=attack_damage,
-        attack_range=attack_range,
-        fire_rate=fire_rate,
-        health=health,
-        speed=speed,
-        level=level,
-        points_remaining=points_remaining,
-        spawn_time=spawn_time
-    )
-
-    if is_created:
-        response = JsonResponse({"Mob": "Already exists"})
-        response.status_code = 403
-    else:
-        response = JsonResponse({"Mob": "Created"})
-        response.status_code = 200
-
-    return response
-
-
 # noinspection PyBroadException
 @csrf_exempt
 def map_upload(request):
     """
-    url: /map_upload
+    url: /map-upload
 
     map_array - map array written as positive integers, separated with ";".
     player_address - field in Player object.
@@ -229,11 +149,11 @@ def map_upload(request):
         if map_path.endswith(".json"):
             map_path -= ".json"
 
-        Path("resources/maps/").mkdir(parents=True, exist_ok=True)
-        with open(f"resources/maps/{map_path}.json", "w+") as f:
+        Path("data/Levels/").mkdir(parents=True, exist_ok=True)
+        with open(f"data/Levels/{map_path}.json", "w+") as f:
             f.write(json.dumps({'map': map_array}))
 
-        Map.objects.update_or_create(path=map_path, validationTimeFrom=datetime.now())
+        Level.objects.update_or_create(path=map_path)
 
         response = JsonResponse({"status": "map successfully loaded"})
         response.status_code = 201
@@ -248,9 +168,7 @@ def map_upload(request):
 @csrf_exempt
 def map_download(request):
     """
-    map_addr - Map identifier. Field in Map object.
-
-    url: /map_download?path={map_path}
+    url: /map-download?name={map_name}
 
     :param request: GET
     :return:
@@ -258,14 +176,39 @@ def map_download(request):
     {"map": "Failed"}, status code 404
     """
     try:
-        map_path = str(request.GET.get('path'))
-        map_obj = Map.objects.get(path=map_path)
-        with open(f"resources/maps/{map_obj.path}.json", "r") as f:
+        map_name = str(request.GET.get('name'))
+        map_obj = Level.objects.get(name=map_name)
+        with open(map_obj.path, "r") as f:
             map_json: dict = json.loads(f.read())
         response = JsonResponse(map_json)
         response.status_code = 200
     except Exception:
-        response = JsonResponse({"map": "failed"})
+        response = JsonResponse({})
+        response.status_code = 404
+
+    return response
+
+
+# noinspection PyBroadException
+@csrf_exempt
+def turret_download(request):
+    """
+    url: /turret-download?name={map_name}
+
+    :param request: GET
+    :return:
+    {"turret": map_obj.map_array}, status code 200
+    {"map": "Failed"}, status code 404
+    """
+    try:
+        turret_name = str(request.GET.get('name'))
+        turret_obj = Turret.objects.get(name=turret_name)
+        with open(turret_obj.path, "r") as f:
+            turret_json: dict = json.loads(f.read())
+        response = JsonResponse(turret_json)
+        response.status_code = 200
+    except Exception:
+        response = JsonResponse({})
         response.status_code = 404
 
     return response
@@ -331,66 +274,57 @@ def submit_update(request):
     t.save()
 
     graphic_files = []
-    music_files = []
-    other_files = []
+    sound_files = []
+    level_files = []
+    turret_files = []
 
     # List all files
-    for r, d, f in os.walk(os.getcwd() + os.path.sep + "data"):
-        for file in f:
-            file_path: str = os.path.join(r, file).replace("\\", "/")
+    for root, dirs, paths in os.walk(os.getcwd() + os.path.sep + "data"):
+        for path in paths:
+            file_path: str = os.path.join(root, path).replace("\\", "/")
             file_path = "." + re.search(r".+(/data.+)", file_path).group(1)
-            if file.endswith(".png"):
+            if "sprites" in root.lower():
                 graphic_files.append(file_path)
-            elif file.endswith(".ogg"):
-                music_files.append(file_path)
-            else:
-                other_files.append(file_path)
+            elif "sounds" in root.lower():
+                sound_files.append(file_path)
+            elif "levels" in root.lower():
+                level_files.append(file_path)
+            elif "turrets" in root.lower():
+                turret_files.append(file_path)
 
     # Clean undesired files
 
     g_all = Graphic.objects.all()
     m_all = Music.objects.all()
-    o_all = Other.objects.all()
 
     for g in g_all:
         if g.path not in graphic_files:
             Graphic.objects.get(path=g.path).delete()
 
     for m in m_all:
-        if m.path not in music_files:
+        if m.path not in sound_files:
             Music.objects.get(path=m.path).delete()
-
-    for o in o_all:
-        if o.path not in other_files:
-            Other.objects.get(path=o.path).delete()
 
     # Update database
 
-    for f in graphic_files:
-        try:
-            print(f)
-            g, c = Graphic.objects.get_or_create(path=f, build=ver)
-            if c:
-                g.version = ver
-        except IntegrityError:
-            print("passing")
-            pass
+    for path in graphic_files:
+        g, _ = Graphic.objects.get_or_create(path=path, build=ver)
+        g.version = ver
 
-    for f in music_files:
-        try:
-            m, c = Music.objects.get_or_create(path=f, build=ver)
-            if c:
-                m.version = ver
-        except IntegrityError:
-            pass
+    for path in sound_files:
+        m, _ = Music.objects.get_or_create(path=path, build=ver)
+        m.version = ver
 
-    for f in other_files:
-        try:
-            o, c = Other.objects.get_or_create(path=f, build=ver)
-            if c:
-                o.version = ver
-        except IntegrityError:
-            pass
+    for path in level_files:
+        level_name = path.split("/")[-1].split(".")[0]
+        level_obj, _ = Level.objects.get_or_create(name=level_name, path=path)
+        level_obj.version = ver
+
+    for path in turret_files:
+        with open(path, 'r') as file:
+            turret_name: str = json.loads(file.read())['name']
+        turret_obj, _ = Turret.objects.get_or_create(name=turret_name, path=path)
+        turret_obj.version = ver
 
     response = JsonResponse({"update": "ok"})
     response.status_code = 200
@@ -419,13 +353,11 @@ def serve_newest_update(request):
 
         all_graphic = Graphic.objects.all()
         all_music = Music.objects.all()
-        all_other = Other.objects.all()
 
         zip_name = f"update_{actual_build}.zip"
 
         [files.append(b.path) for b in all_graphic if b.build > version]
         [files.append(b.path) for b in all_music if b.build > version]
-        [files.append(b.path) for b in all_other if b.build > version]
 
         print(files)
 
@@ -445,12 +377,12 @@ def serve_newest_update(request):
 
 
 def list_all_maps(request):
-    maps = Map.objects.all()
+    maps = Level.objects.all()
 
     map_list = []
 
     for m in maps:
-        map_list.append(m.path)
+        map_list.append(m.name)
 
     response = JsonResponse({"maps": map_list})
     response.status_code = 200

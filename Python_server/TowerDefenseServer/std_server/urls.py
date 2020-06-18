@@ -21,6 +21,7 @@ from std_server.views import (
     setup,
     map_upload,
     map_download,
+    turret_download,
     serve_newest_update,
     submit_update,
     serve_new_instance,
@@ -40,6 +41,7 @@ urlpatterns = [
     # Map
     path('map-upload', map_upload),
     path('map-download', map_download),
+    path('turret-download', turret_download),
     path('list-maps', list_all_maps),
 
     # Updates
