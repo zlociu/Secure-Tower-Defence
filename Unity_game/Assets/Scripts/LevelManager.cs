@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Assets.Scripts.Turret;
 using Assets.Scripts.Utils;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
@@ -14,6 +16,7 @@ namespace Assets.Scripts
         [SerializeField] private GameObject _enemy;
         [SerializeField] private GameObject _lifeUiGroup;
         [SerializeField] private GameObject _lifePrefab;
+        [SerializeField] private GameObject _moneyUi;
         private GameObject _waypointsGroup;
         private GameObject _unitsGroup;
         private GameObject _terrainTilesGroup;
@@ -21,6 +24,7 @@ namespace Assets.Scripts
 
         private Vector2Int _spawnCoords;
         public float SpawnPeriod = 2;
+        public int Money { get; private set; }
 
         private readonly List<List<int>> _tileMap = GlobalVariables.CurrentMap.MapToList();
 
@@ -29,9 +33,11 @@ namespace Assets.Scripts
         // Start is called before the first frame update
         void Start()
         {
+            Money = 0;
             SetupVariables();
             CreateLevel();
             CreateBase();
+            IncreaseMoney(100);
         }
 
         // Update is called once per frame
@@ -56,7 +62,8 @@ namespace Assets.Scripts
             _waypointsGroup = new GameObject("waypoints");
             _unitsGroup = new GameObject("units");
             _terrainTilesGroup = new GameObject("terrain_tiles");
-            TurretCreation.UnitsGroup = _unitsGroup;
+            CreateTurret.UnitsGroup = _unitsGroup;
+            CreateTurret.LevelManagerVar = this;
             _pathTilesGroup = new GameObject("path_tiles");
         }
 
@@ -273,6 +280,7 @@ namespace Assets.Scripts
             );
             enemy.transform.SetParent(_unitsGroup.transform);
             enemy.GetComponent<Unit>().WaypointsGroup = _waypointsGroup.transform;
+            enemy.GetComponent<Unit>().LevelManager = this;
         }
 
         private GameObject SpawnObject(GameObject gameObject1, string name1, Vector3Int coordinates)
@@ -282,6 +290,21 @@ namespace Assets.Scripts
                 new Vector3(edgeLength * coordinates.x, edgeLength * (_tileMap.Count - coordinates.y), coordinates.z);
             gameObject1.name = name1;
             return gameObject1;
+        }
+
+        public void IncreaseMoney(int inc)
+        {
+            Money += inc;
+            _moneyUi.GetComponent<Text>().text = Money.ToString();
+        }
+        public void DecreaseMoney(int dec)
+        {
+            Money -= dec;
+            if (Money < 0)
+            {
+                Money = 0;
+            }
+            _moneyUi.GetComponent<Text>().text = Money.ToString();
         }
     }
 }

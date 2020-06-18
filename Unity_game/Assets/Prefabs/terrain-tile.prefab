@@ -10,9 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6248194936957000321}
   - component: {fileID: 6852212865388676157}
-  - component: {fileID: 9131049914600873755}
   - component: {fileID: 61673921029130596}
-  - component: {fileID: 50531179443174850}
+  - component: {fileID: 3163581444465934671}
   m_Layer: 0
   m_Name: terrain-tile
   m_TagString: Untagged
@@ -82,20 +81,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &9131049914600873755
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7623993050853861532}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13d1878092dfadc44af499c7d7accfde, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _turretUiPrefab: {fileID: 8818117797712331888, guid: 50f5561186b99b94faafcf7c936593d1,
-    type: 3}
 --- !u!61 &61673921029130596
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -122,24 +107,17 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 32, y: 32}
   m_EdgeRadius: 0
---- !u!50 &50531179443174850
-Rigidbody2D:
-  serializedVersion: 4
+--- !u!114 &3163581444465934671
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7623993050853861532}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 0.0001
-  m_LinearDrag: 0
-  m_AngularDrag: 0
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 7
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13cf45ba8cfcdda44ba2d2945c1a4da8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _defaultTurretUiPrefab: {fileID: 8818117797712331888, guid: 50f5561186b99b94faafcf7c936593d1,
+    type: 3}

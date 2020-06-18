@@ -5,21 +5,34 @@ using UnityEngine;
 public class SoundManager : MonoBehaviour
 {
     private static Dictionary<int, AudioSource> _audioSources;
+    private static List<int> _audioSourcesToDelete;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         _audioSources = new Dictionary<int, AudioSource>();
+        _audioSourcesToDelete = new List<int>();
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
+        for (int i = 0; i < _audioSourcesToDelete.Count; i++)
+        {
+            int instanceId = _audioSourcesToDelete[i];
+            if (!_audioSources[instanceId].isPlaying)
+            {
+                Destroy(_audioSources[instanceId]);
+                _audioSources.Remove(instanceId);
+                _audioSourcesToDelete[i] = 0;
+            }
+        }
+
+        _audioSourcesToDelete = _audioSourcesToDelete.FindAll(e => e != 0);
     }
 
     public void AddAudioSource(int instanceId, AudioClip clip)
     {
-        Debug.Log("Adding audio source: " + instanceId);
         AudioSource audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.clip = clip;
         _audioSources.Add(instanceId, audioSource);
@@ -32,8 +45,6 @@ public class SoundManager : MonoBehaviour
 
     public void RemoveAudioSource(int instanceId)
     {
-        Debug.Log("Removing audio source: " + instanceId);
-        Destroy(_audioSources[instanceId]);
-        _audioSources.Remove(instanceId);
+        _audioSourcesToDelete.Add(instanceId);
     }
 }

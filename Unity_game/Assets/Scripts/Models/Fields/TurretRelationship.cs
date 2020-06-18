@@ -6,8 +6,9 @@ namespace Assets.Scripts.Models.Fields
 {
     [Serializable]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class MapRow
+    public class TurretRelationship
     {
-        public List<int> row = new List<int>();
+        public string currentTurret;
+        public List<string> upgrades;
     }
 }

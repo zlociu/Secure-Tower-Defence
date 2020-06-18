@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8818117797712331889}
   - component: {fileID: 8818117797712331890}
   - component: {fileID: 8818117797712331892}
-  - component: {fileID: 114253483097704560}
+  - component: {fileID: 6175740292112401796}
   m_Layer: 0
   m_Name: towerUI
   m_TagString: Untagged
@@ -107,7 +107,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 32, y: 32}
   m_EdgeRadius: 0
---- !u!114 &114253483097704560
+--- !u!114 &6175740292112401796
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -116,11 +116,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 8818117797712331888}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a38966e960489946acecaf4fc0590e0, type: 3}
+  m_Script: {fileID: 11500000, guid: 65e3f34afc9715a4fa0f93d6ae3c833b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _turretBasePrefab: {fileID: 8700604006542600862, guid: 339f388230b1a1a45a091f2dc8bc3f91,
     type: 3}
-  _turretPrefab: {fileID: 1222365039802769005, guid: 2937aca0c3e9fd445b6511cced0dad9f,
+  TurretWeaponPrefab: {fileID: 1222365039802769005, guid: 2937aca0c3e9fd445b6511cced0dad9f,
     type: 3}
   buildTile: {fileID: 0}

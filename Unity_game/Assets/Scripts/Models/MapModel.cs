@@ -1,34 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Assets.Scripts.Models;
+using Assets.Scripts.Models.Fields;
 
-[Serializable]
-[SuppressMessage("ReSharper", "InconsistentNaming")]
-public class MapModel
+namespace Assets.Scripts.Models
 {
-    public List<MapRow> map = new List<MapRow>();
-    public List<TileRow> tiles = new List<TileRow>();
-
-    public List<List<int>> MapToList()
+    [Serializable]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public class MapModel
     {
-        List<List<int>> result = new List<List<int>>();
-        foreach (MapRow row in map)
+        public List<MapRow> map = new List<MapRow>();
+        public List<TileRow> tiles = new List<TileRow>();
+        public List<string> turrets = new List<string>();
+
+        public List<List<int>> MapToList()
         {
-            result.Add(row.row);
+            List<List<int>> result = new List<List<int>>();
+            foreach (MapRow row in map)
+            {
+                result.Add(row.row);
+            }
+
+            return result;
         }
 
-        return result;
-    }
-
-    public Dictionary<int, string> TilesToDict()
-    {
-        Dictionary<int, string> result = new Dictionary<int, string>();
-        foreach (TileRow row in tiles)
+        public Dictionary<int, string> TilesToDict()
         {
-            result.Add(row.key, row.path);
-        }
+            Dictionary<int, string> result = new Dictionary<int, string>();
+            foreach (TileRow row in tiles)
+            {
+                result.Add(row.key, row.path);
+            }
 
-        return result;
+            return result;
+        }
     }
 }
