@@ -21,5 +21,9 @@ namespace Assets.Scripts.Turret
         public float Range;
 
         public List<TurretParams> Upgrades;
+        public string BaseTexture;
+        public string WeaponTexture;
+        public string ProjectileTexture;
+        public string UiTexture;
     }
 }

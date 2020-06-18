@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Assets.Scripts.Models;
 using Assets.Scripts.Turret;
 using Assets.Scripts.Utils;
 using UnityEngine;
@@ -55,7 +56,7 @@ namespace Assets.Scripts
         private void SetupVariables()
         {
             _tiles = new Dictionary<int, GameObject>();
-            LoadTileSprites();
+            SetupTilePrefabs();
 
             _bounds = new Bounds(transform.position, Vector3.one);
 
@@ -65,11 +66,25 @@ namespace Assets.Scripts
             CreateTurret.UnitsGroup = _unitsGroup;
             CreateTurret.LevelManagerVar = this;
             _pathTilesGroup = new GameObject("path_tiles");
+            SetupEnemyPrefabs();
         }
 
-        private void LoadTileSprites()
+        private void SetupEnemyPrefabs()
         {
-            GameObject prefabs = new GameObject("prefabs");
+            foreach (EnemyModel enemyModel in GlobalVariables.EnemyParams)
+            {
+                Unit unit = _enemy.GetComponent<Unit>();
+                unit.Hp = enemyModel.hitPoints;
+                unit.Speed = enemyModel.speed;
+                unit.MoneyReward = enemyModel.moneyReward;
+                _enemy.GetComponent<SpriteRenderer>().sprite =
+                    ResourceUtil.LoadSprite(enemyModel.texture);
+            }
+        }
+
+        private void SetupTilePrefabs()
+        {
+            GameObject prefabs = new GameObject("tile_prefabs");
             foreach (KeyValuePair<int, string> entry in GlobalVariables.CurrentMap.TilesToDict())
             {
                 GameObject prefab = entry.Key != 0 ? _terrainTilePrefab : _pathTilePrefab;

@@ -31,7 +31,8 @@ public class ShowTurretCreationUi : MonoBehaviour
             GameObject turretUi = Instantiate(_defaultTurretUiPrefabs[i]);
             turretUi.transform.localScale = new Vector3(0.5f, 0.5f, 1.0f);
             turretUi.GetComponent<CreateTurret>().BuildTile = transform;
-            turretUi.GetComponent<CreateTurret>().Params = _defaultTurretUiPrefabs[i].GetComponent<CreateTurret>().Params;
+            turretUi.GetComponent<CreateTurret>().Params =
+                _defaultTurretUiPrefabs[i].GetComponent<CreateTurret>().Params;
             Vector3 uiPosition = transform.position;
             uiPosition.y += 10;
             uiPosition.x += i * 16;
@@ -64,9 +65,11 @@ public class ShowTurretCreationUi : MonoBehaviour
         {
             GameObject prefab = Instantiate(_defaultTurretUiPrefab);
             prefab.SetActive(false);
-            prefab.name = "prefab_"+turretParams.Name;
+            prefab.name = "prefab_" + turretParams.Name;
             prefab.GetComponent<CreateTurret>().Params = turretParams;
             prefab.transform.parent = prefabs.transform;
+            prefab.GetComponent<SpriteRenderer>().sprite =
+                ResourceUtil.LoadSprite(turretParams.UiTexture);
             _defaultTurretUiPrefabs.Add(prefab);
         }
     }

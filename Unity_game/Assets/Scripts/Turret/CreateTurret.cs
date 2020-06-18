@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts;
 using Assets.Scripts.Turret;
+using Assets.Scripts.Utils;
 using UnityEngine;
 
 public class CreateTurret : MonoBehaviour
@@ -23,16 +24,19 @@ public class CreateTurret : MonoBehaviour
     private void _createTurret()
     {
         Debug.Log("Creating turret");
-        GameObject turret = Instantiate(TurretWeaponPrefab);
-        turret.transform.position = new Vector3(BuildTile.position.x, BuildTile.position.y, -3);
-        turret.GetComponent<Turret>().UnitsGroup = UnitsGroup;
-        turret.GetComponent<Turret>().Params = Params;
-        Debug.Log(turret.GetComponent<Turret>().Params);
-        turret.transform.parent = BuildTile;
+        GameObject turretWeapon = Instantiate(TurretWeaponPrefab);
+        turretWeapon.transform.position = new Vector3(BuildTile.position.x, BuildTile.position.y, -3);
+        turretWeapon.GetComponent<Turret>().UnitsGroup = UnitsGroup;
+        turretWeapon.GetComponent<Turret>().Params = Params;
+        turretWeapon.transform.parent = BuildTile;
+        turretWeapon.GetComponent<SpriteRenderer>().sprite =
+            ResourceUtil.LoadSprite(Params.WeaponTexture);
 
         GameObject turretBase = Instantiate(_turretBasePrefab);
         turretBase.transform.position = new Vector3(BuildTile.position.x, BuildTile.position.y, -2);
         turretBase.transform.parent = BuildTile;
+        turretBase.GetComponent<SpriteRenderer>().sprite =
+            ResourceUtil.LoadSprite(Params.BaseTexture);
 
         Debug.Log("Turret created at " + BuildTile.position);
         Destroy(BuildTile.GetComponent<Rigidbody2D>());

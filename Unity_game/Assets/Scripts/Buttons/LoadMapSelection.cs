@@ -31,6 +31,7 @@ public class LoadMapSelection : MonoBehaviour, IPointerUpHandler
                 MapModel map = JsonUtility.FromJson<MapModel>(responseBody);
                 GlobalVariables.CurrentMap = map;
                 LoadTurretParams(map.turrets);
+                LoadEnemyParams(map.enemies);
                 SceneManager.LoadScene("Scenes/GameScene", LoadSceneMode.Single);
             }
         }
@@ -58,6 +59,34 @@ public class LoadMapSelection : MonoBehaviour, IPointerUpHandler
                     string responseBody = request.downloadHandler.text;
                     TurretModel model = JsonUtility.FromJson<TurretModel>(responseBody);
                     GlobalVariables.DefaultTurretsParams.Add(model.ToTurretParams());
+                }
+            }
+        }
+    }
+
+    private void LoadEnemyParams(List<string> enemyNames)
+    {
+        GlobalVariables.EnemyParams = new List<EnemyModel>();
+        foreach (string enemyName in enemyNames)
+        {
+            using (UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:8000/enemy-download?name=" + enemyName))
+            {
+                request.SendWebRequest();
+                while (!request.isDone)
+                {
+                    new WaitForSeconds(0.5f);
+                }
+
+                if (request.isNetworkError || request.isHttpError)
+                {
+                    Debug.Log("http://127.0.0.1:8000/enemy-download?name=" + enemyName);
+                    Debug.Log(request.error);
+                }
+                else
+                {
+                    string responseBody = request.downloadHandler.text;
+                    EnemyModel model = JsonUtility.FromJson<EnemyModel>(responseBody);
+                    GlobalVariables.EnemyParams.Add(model);
                 }
             }
         }

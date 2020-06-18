@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.Turret;
+using Assets.Scripts.Utils;
 using UnityEngine;
 
 public class Turret : MonoBehaviour
@@ -20,6 +21,7 @@ public class Turret : MonoBehaviour
     {
         _soundManager = FindObjectOfType<SoundManager>();
         _soundManager.AddAudioSource(gameObject.GetInstanceID(), _shootingSoundClip);
+        SetupProjectile();
     }
 
     // Update is called once per frame
@@ -50,6 +52,17 @@ public class Turret : MonoBehaviour
         _turretRange.transform.SetParent(transform);
     }
 
+    private void SetupProjectile()
+    {
+        GameObject prefabs = new GameObject("projectile_prefabs");
+        ProjectilePrefab = Instantiate(ProjectilePrefab);
+        ProjectilePrefab.GetComponent<SpriteRenderer>().sprite =
+            ResourceUtil.LoadSprite(Params.ProjectileTexture);
+        ProjectilePrefab.SetActive(false);
+        ProjectilePrefab.name = "prefab_" + Params.Name;
+        ProjectilePrefab.transform.parent = prefabs.transform;
+    }
+
     private void OnMouseExit()
     {
         Destroy(_turretRange);
@@ -66,7 +79,8 @@ public class Turret : MonoBehaviour
         {
             List<Transform> closestUnits = GetClosestUnits(3);
             return SpawnProjectile(closestUnits);
-        } else if (Params.Type == TurretType.AreaShot)
+        }
+        else if (Params.Type == TurretType.AreaShot)
         {
             Transform closestUnit = GetClosestUnit();
             return SpawnAreaProjectile(closestUnit);
@@ -77,7 +91,7 @@ public class Turret : MonoBehaviour
 
     private bool SpawnProjectile(List<Transform> closestUnits)
     {
-        if (closestUnits.Count == 0)
+        if (closestUnits == null || closestUnits.Count == 0)
         {
             return false;
         }
@@ -86,6 +100,7 @@ public class Turret : MonoBehaviour
         {
             SpawnProjectile(closestUnits[i]);
         }
+
         return true;
     }
 
@@ -100,6 +115,7 @@ public class Turret : MonoBehaviour
             Instantiate(ProjectilePrefab),
             "projectile"
         );
+        projectile.SetActive(true);
         projectile.transform.SetParent(transform);
 
         Projectile projectileScript = projectile.AddComponent<Projectile>();
@@ -125,6 +141,7 @@ public class Turret : MonoBehaviour
             Instantiate(ProjectilePrefab),
             "projectile"
         );
+        projectile.SetActive(true);
         projectile.transform.SetParent(transform);
 
         AreaProjectile projectileScript = projectile.AddComponent<AreaProjectile>();
@@ -144,7 +161,7 @@ public class Turret : MonoBehaviour
     private Transform GetClosestUnit()
     {
         List<Transform> closestUnits = GetClosestUnits(1);
-        if (closestUnits.Count == 0)
+        if (closestUnits == null || closestUnits.Count == 0)
         {
             return null;
         }

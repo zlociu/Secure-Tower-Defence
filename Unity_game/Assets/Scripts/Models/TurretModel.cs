@@ -21,6 +21,8 @@ namespace Assets.Scripts.Models
         public List<string> upgrades;
         public string baseTexture;
         public string weaponTexture;
+        public string projectileTexture;
+        public string uiTexture;
         public string shootSound;
 
         public TurretParams ToTurretParams()
@@ -33,7 +35,11 @@ namespace Assets.Scripts.Models
                 Damage = damage,
                 FireRate = fireRate,
                 ProjectileSpeed = projectileSpeed,
-                Range = range
+                Range = range,
+                BaseTexture = baseTexture,
+                WeaponTexture = weaponTexture,
+                ProjectileTexture = projectileTexture,
+                UiTexture = uiTexture
             };
         }
     }

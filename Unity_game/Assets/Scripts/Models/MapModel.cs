@@ -12,6 +12,7 @@ namespace Assets.Scripts.Models
         public List<MapRow> map = new List<MapRow>();
         public List<TileRow> tiles = new List<TileRow>();
         public List<string> turrets = new List<string>();
+        public List<string> enemies = new List<string>();
 
         public List<List<int>> MapToList()
         {

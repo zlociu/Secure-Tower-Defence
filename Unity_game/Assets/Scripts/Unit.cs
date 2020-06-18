@@ -7,8 +7,9 @@ namespace Assets.Scripts
         public Transform WaypointsGroup;
 
         private int _waypointIndex = 0;
-        private int _speed = 40;
-        private int _hp = 30;
+        public int Speed = 40;
+        public int Hp = 30;
+        public int MoneyReward = 10;
         [SerializeField] private AudioClip _monsterSoundClip;
         private SoundManager _soundManager;
         private LevelManager _levelManager;
@@ -24,7 +25,7 @@ namespace Assets.Scripts
         // Update is called once per frame
         void Update()
         {
-            if (_hp <= 0)
+            if (Hp <= 0)
             {
                 _destroy();
             }
@@ -36,7 +37,7 @@ namespace Assets.Scripts
 
             transform.position = Vector3.MoveTowards(transform.position,
                 WaypointsGroup.GetChild(_waypointIndex).position,
-                _speed * Time.deltaTime);
+                Speed * Time.deltaTime);
             Vector2 dir = WaypointsGroup.GetChild(_waypointIndex).position - transform.position;
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
@@ -49,7 +50,7 @@ namespace Assets.Scripts
         private void _destroy()
         {
             _soundManager.RemoveAudioSource(gameObject.GetInstanceID());
-            _levelManager.IncreaseMoney(10);
+            _levelManager.IncreaseMoney(MoneyReward);
             Destroy(gameObject);
         }
 
@@ -64,7 +65,7 @@ namespace Assets.Scripts
 
         public void DecreaseHp(int amount)
         {
-            _hp -= amount;
+            Hp -= amount;
             _soundManager.PlaySound(gameObject.GetInstanceID());
         }
     }
