@@ -11,7 +11,8 @@ from django.db.utils import IntegrityError
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from std_server.models.graphics_model import Graphic, Music
+from std_server.models.enemy_model import Enemy
+from std_server.models.graphics_model import Graphic, Sound
 from std_server.models.level_model import Level
 from std_server.models.player_model import Player
 from std_server.models.setter_model import Test
@@ -193,7 +194,7 @@ def map_download(request):
 @csrf_exempt
 def turret_download(request):
     """
-    url: /turret-download?name={map_name}
+    url: /turret-download?name={turret_name}
 
     :param request: GET
     :return:
@@ -205,7 +206,37 @@ def turret_download(request):
         turret_obj = Turret.objects.get(name=turret_name)
         with open(turret_obj.path, "r") as f:
             turret_json: dict = json.loads(f.read())
+        turret_json["baseTexture"] = "/Buildings/" + turret_json["baseTexture"]
+        turret_json["weaponTexture"] = "/Buildings/" + turret_json["weaponTexture"]
+        turret_json["projectileTexture"] = "/Effects/" + turret_json["projectileTexture"]
+        turret_json["uiTexture"] = "/Ui/" + turret_json["uiTexture"]
         response = JsonResponse(turret_json)
+        response.status_code = 200
+    except Exception:
+        response = JsonResponse({})
+        response.status_code = 404
+
+    return response
+
+
+# noinspection PyBroadException
+@csrf_exempt
+def enemy_download(request):
+    """
+    url: /enemy-download?name={enemy_name}
+
+    :param request: GET
+    :return:
+    {"enemy": map_obj.map_array}, status code 200
+    {"map": "Failed"}, status code 404
+    """
+    try:
+        enemy_name = str(request.GET.get('name'))
+        enemy_obj = Enemy.objects.get(name=enemy_name)
+        with open(enemy_obj.path, "r") as f:
+            enemy_json: dict = json.loads(f.read())
+        enemy_json["texture"] = "/Enemies/" + enemy_json['texture']
+        response = JsonResponse(enemy_json)
         response.status_code = 200
     except Exception:
         response = JsonResponse({})
@@ -277,6 +308,7 @@ def submit_update(request):
     sound_files = []
     level_files = []
     turret_files = []
+    enemies_files = []
 
     # List all files
     for root, dirs, paths in os.walk(os.getcwd() + os.path.sep + "data"):
@@ -291,11 +323,13 @@ def submit_update(request):
                 level_files.append(file_path)
             elif "turrets" in root.lower():
                 turret_files.append(file_path)
+            elif "enemies" in root.lower():
+                enemies_files.append(file_path)
 
     # Clean undesired files
 
     g_all = Graphic.objects.all()
-    m_all = Music.objects.all()
+    m_all = Sound.objects.all()
 
     for g in g_all:
         if g.path not in graphic_files:
@@ -303,28 +337,36 @@ def submit_update(request):
 
     for m in m_all:
         if m.path not in sound_files:
-            Music.objects.get(path=m.path).delete()
+            Sound.objects.get(path=m.path).delete()
 
     # Update database
 
     for path in graphic_files:
-        g, _ = Graphic.objects.get_or_create(path=path, build=ver)
+        graphic_name = path.split("/")[-1].split(".")[0]
+        g, _ = Graphic.objects.update_or_create(name=graphic_name, path=path, build=ver)
         g.version = ver
 
     for path in sound_files:
-        m, _ = Music.objects.get_or_create(path=path, build=ver)
+        sound_name = path.split("/")[-1].split(".")[0]
+        m, _ = Sound.objects.update_or_create(name=sound_name, path=path, build=ver)
         m.version = ver
 
     for path in level_files:
         level_name = path.split("/")[-1].split(".")[0]
-        level_obj, _ = Level.objects.get_or_create(name=level_name, path=path)
+        level_obj, _ = Level.objects.update_or_create(name=level_name, path=path)
         level_obj.version = ver
 
     for path in turret_files:
         with open(path, 'r') as file:
             turret_name: str = json.loads(file.read())['name']
-        turret_obj, _ = Turret.objects.get_or_create(name=turret_name, path=path)
+        turret_obj, _ = Turret.objects.update_or_create(name=turret_name, path=path)
         turret_obj.version = ver
+
+    for path in enemies_files:
+        with open(path, 'r') as file:
+            enemy_name: str = json.loads(file.read())['name']
+        enemy_obj, _ = Enemy.objects.update_or_create(name=enemy_name, path=path)
+        enemy_obj.version = ver
 
     response = JsonResponse({"update": "ok"})
     response.status_code = 200
@@ -352,7 +394,7 @@ def serve_newest_update(request):
         files = []
 
         all_graphic = Graphic.objects.all()
-        all_music = Music.objects.all()
+        all_music = Sound.objects.all()
 
         zip_name = f"update_{actual_build}.zip"
 
