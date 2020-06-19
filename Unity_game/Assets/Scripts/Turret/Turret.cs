@@ -10,7 +10,7 @@ public class Turret : MonoBehaviour
     public TurretParams Params;
 
     [SerializeField] private GameObject _turretRangePrefab;
-    [SerializeField] private AudioClip _shootingSoundClip;
+    public AudioClip ShotSoundClip;
     private GameObject _turretRange;
     private SoundManager _soundManager;
 
@@ -20,7 +20,7 @@ public class Turret : MonoBehaviour
     void Start()
     {
         _soundManager = FindObjectOfType<SoundManager>();
-        _soundManager.AddAudioSource(gameObject.GetInstanceID(), _shootingSoundClip);
+        _soundManager.AddAudioSource(gameObject.GetInstanceID(), ShotSoundClip);
         SetupProjectile();
     }
 
@@ -96,9 +96,9 @@ public class Turret : MonoBehaviour
             return false;
         }
 
-        for (int i = 0; i < closestUnits.Count; i++)
+        foreach (Transform closestUnit in closestUnits)
         {
-            SpawnProjectile(closestUnits[i]);
+            SpawnProjectile(closestUnit);
         }
 
         return true;

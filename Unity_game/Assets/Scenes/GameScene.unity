@@ -672,7 +672,8 @@ MonoBehaviour:
   _terrainTilePrefab: {fileID: 7623993050853861532, guid: c2d5881bffdceee4f9cd0a0e4f72dc12,
     type: 3}
   _base: {fileID: 7981596417576688126, guid: 73b33a6be2d68be4591b62d30a9c8fa5, type: 3}
-  _enemy: {fileID: 655344242173375002, guid: 58820ea7f86cb23429497fe6174e5506, type: 3}
+  _enemyPrefab: {fileID: 655344242173375002, guid: 58820ea7f86cb23429497fe6174e5506,
+    type: 3}
   _lifeUiGroup: {fileID: 733345926}
   _lifePrefab: {fileID: 7523628775422061488, guid: 28fc2896e946bf147af690dc6ad8b142,
     type: 3}

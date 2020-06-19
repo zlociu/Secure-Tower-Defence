@@ -25,5 +25,6 @@ namespace Assets.Scripts.Turret
         public string WeaponTexture;
         public string ProjectileTexture;
         public string UiTexture;
+        public string ShootSound;
     }
 }

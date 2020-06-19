@@ -11,6 +11,7 @@ public class CreateTurret : MonoBehaviour
     public static LevelManager LevelManagerVar;
     public Transform BuildTile;
     public TurretParams Params;
+    public AudioClip ShootSound;
 
     private void OnMouseDown()
     {
@@ -31,6 +32,8 @@ public class CreateTurret : MonoBehaviour
         turretWeapon.transform.parent = BuildTile;
         turretWeapon.GetComponent<SpriteRenderer>().sprite =
             ResourceUtil.LoadSprite(Params.WeaponTexture);
+        turretWeapon.GetComponent<Turret>().ShotSoundClip =
+            ResourceUtil.LoadSound(Params.ShootSound);
 
         GameObject turretBase = Instantiate(_turretBasePrefab);
         turretBase.transform.position = new Vector3(BuildTile.position.x, BuildTile.position.y, -2);

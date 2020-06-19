@@ -6,7 +6,7 @@ namespace Assets.Scripts
 {
     public static class GlobalVariables
     {
-        public static MapModel CurrentMap;
+        public static LevelModel CurrentLevel;
         public static TurretHierarchyModel TurretHierarchy;
         public static List<TurretParams> DefaultTurretsParams;
         public static List<EnemyModel> EnemyParams;

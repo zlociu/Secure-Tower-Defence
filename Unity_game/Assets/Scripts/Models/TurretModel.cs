@@ -39,7 +39,8 @@ namespace Assets.Scripts.Models
                 BaseTexture = baseTexture,
                 WeaponTexture = weaponTexture,
                 ProjectileTexture = projectileTexture,
-                UiTexture = uiTexture
+                UiTexture = uiTexture,
+                ShootSound = shootSound
             };
         }
     }

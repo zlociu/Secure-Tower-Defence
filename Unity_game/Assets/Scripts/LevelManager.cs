@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Models;
 using Assets.Scripts.Turret;
 using Assets.Scripts.Utils;
@@ -14,7 +15,8 @@ namespace Assets.Scripts
         [SerializeField] private GameObject _pathTilePrefab;
         [SerializeField] private GameObject _terrainTilePrefab;
         [SerializeField] private GameObject _base;
-        [SerializeField] private GameObject _enemy;
+        [SerializeField] private GameObject _enemyPrefab;
+        private Dictionary<string, GameObject> _enemyPrefabs;
         [SerializeField] private GameObject _lifeUiGroup;
         [SerializeField] private GameObject _lifePrefab;
         [SerializeField] private GameObject _moneyUi;
@@ -22,12 +24,13 @@ namespace Assets.Scripts
         private GameObject _unitsGroup;
         private GameObject _terrainTilesGroup;
         private GameObject _pathTilesGroup;
+        private List<Dictionary<string, int>> _waves;
 
         private Vector2Int _spawnCoords;
         public float SpawnPeriod = 2;
         public int Money { get; private set; }
 
-        private readonly List<List<int>> _tileMap = GlobalVariables.CurrentMap.MapToList();
+        private readonly List<List<int>> _tileMap = GlobalVariables.CurrentLevel.MapToList();
 
         private Bounds _bounds;
 
@@ -38,7 +41,7 @@ namespace Assets.Scripts
             SetupVariables();
             CreateLevel();
             CreateBase();
-            IncreaseMoney(100);
+            IncreaseMoney(GlobalVariables.CurrentLevel.startingMoney);
         }
 
         // Update is called once per frame
@@ -46,7 +49,26 @@ namespace Assets.Scripts
         {
             if (SpawnPeriod > 2f)
             {
-                SpawnEnemy();
+                if (_waves.Count == 0)
+                {
+                    return;
+                }
+
+                if (_waves.First().Count == 0)
+                {
+                    _waves.RemoveAt(0);
+                    return;
+                }
+
+                string key = _waves.First().Keys.First();
+                if (_waves.First()[key] <= 0)
+                {
+                    _waves.First().Remove(key);
+                    return;
+                }
+
+                SpawnEnemy(key);
+                _waves.First()[key]--;
                 SpawnPeriod = 0f;
             }
 
@@ -55,7 +77,7 @@ namespace Assets.Scripts
 
         private void SetupVariables()
         {
-            _tiles = new Dictionary<int, GameObject>();
+            _waves = GlobalVariables.CurrentLevel.wavesToDictList();
             SetupTilePrefabs();
 
             _bounds = new Bounds(transform.position, Vector3.one);
@@ -71,21 +93,31 @@ namespace Assets.Scripts
 
         private void SetupEnemyPrefabs()
         {
+            _enemyPrefabs = new Dictionary<string, GameObject>();
+            GameObject prefabs = new GameObject("enemy_prefabs");
             foreach (EnemyModel enemyModel in GlobalVariables.EnemyParams)
             {
-                Unit unit = _enemy.GetComponent<Unit>();
+                GameObject prefab = Instantiate(_enemyPrefab);
+                prefab.GetComponent<SpriteRenderer>().sprite =
+                    ResourceUtil.LoadSprite(enemyModel.texture);
+                _enemyPrefabs.Add(enemyModel.name, prefab);
+                Unit unit = prefab.GetComponent<Unit>();
                 unit.Hp = enemyModel.hitPoints;
                 unit.Speed = enemyModel.speed;
                 unit.MoneyReward = enemyModel.moneyReward;
-                _enemy.GetComponent<SpriteRenderer>().sprite =
-                    ResourceUtil.LoadSprite(enemyModel.texture);
+                unit.MonsterSoundClip = ResourceUtil.LoadSound(enemyModel.sound);
+
+                prefab.SetActive(false);
+                prefab.name = "prefab_" + enemyModel.name;
+                prefab.transform.parent = prefabs.transform;
             }
         }
 
         private void SetupTilePrefabs()
         {
+            _tiles = new Dictionary<int, GameObject>();
             GameObject prefabs = new GameObject("tile_prefabs");
-            foreach (KeyValuePair<int, string> entry in GlobalVariables.CurrentMap.TilesToDict())
+            foreach (KeyValuePair<int, string> entry in GlobalVariables.CurrentLevel.TilesToDict())
             {
                 GameObject prefab = entry.Key != 0 ? _terrainTilePrefab : _pathTilePrefab;
                 prefab = Instantiate(prefab);
@@ -286,16 +318,17 @@ namespace Assets.Scripts
             return baseCoords;
         }
 
-        private void SpawnEnemy()
+        private void SpawnEnemy(string enemyName)
         {
             GameObject enemy = SpawnObject(
-                Instantiate(_enemy),
+                Instantiate(_enemyPrefabs[enemyName]),
                 "enemy",
                 new Vector3Int(_spawnCoords.x, _spawnCoords.y, -2)
             );
             enemy.transform.SetParent(_unitsGroup.transform);
             enemy.GetComponent<Unit>().WaypointsGroup = _waypointsGroup.transform;
             enemy.GetComponent<Unit>().LevelManager = this;
+            enemy.SetActive(true);
         }
 
         private GameObject SpawnObject(GameObject gameObject1, string name1, Vector3Int coordinates)
@@ -312,6 +345,7 @@ namespace Assets.Scripts
             Money += inc;
             _moneyUi.GetComponent<Text>().text = Money.ToString();
         }
+
         public void DecreaseMoney(int dec)
         {
             Money -= dec;
@@ -319,6 +353,7 @@ namespace Assets.Scripts
             {
                 Money = 0;
             }
+
             _moneyUi.GetComponent<Text>().text = Money.ToString();
         }
     }

@@ -26,8 +26,8 @@ public class LoadMapList : MonoBehaviour
             else
             {
                 string responseBody = request.downloadHandler.text;
-                MapListModel mapList = JsonUtility.FromJson<MapListModel>(responseBody);
-                foreach (string mapName in mapList.maps)
+                LevelListModel levelList = JsonUtility.FromJson<LevelListModel>(responseBody);
+                foreach (string mapName in levelList.maps)
                 {
                     Debug.Log(mapName);
                     GameObject viewItem = Instantiate(_viewItemPrefab);

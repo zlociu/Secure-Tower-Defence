@@ -13,7 +13,7 @@ public class LoadMapSelection : MonoBehaviour, IPointerUpHandler
     public void OnPointerUp(PointerEventData eventData)
     {
         string text = GetComponentInChildren<Text>().text;
-        using (UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:8000/map-download?name=" + text))
+        using (UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:8000/level-download?name=" + text))
         {
             request.SendWebRequest();
             while (!request.isDone)
@@ -28,10 +28,10 @@ public class LoadMapSelection : MonoBehaviour, IPointerUpHandler
             else
             {
                 string responseBody = request.downloadHandler.text;
-                MapModel map = JsonUtility.FromJson<MapModel>(responseBody);
-                GlobalVariables.CurrentMap = map;
-                LoadTurretParams(map.turrets);
-                LoadEnemyParams(map.enemies);
+                LevelModel level = JsonUtility.FromJson<LevelModel>(responseBody);
+                GlobalVariables.CurrentLevel = level;
+                LoadTurretParams(level.turrets);
+                LoadEnemyParams(level.enemies);
                 SceneManager.LoadScene("Scenes/GameScene", LoadSceneMode.Single);
             }
         }

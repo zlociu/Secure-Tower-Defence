@@ -11,9 +11,19 @@ namespace Assets.Scripts
         public int Hp = 30;
         public int MoneyReward = 10;
         [SerializeField] private AudioClip _monsterSoundClip;
+
+        public AudioClip MonsterSoundClip
+        {
+            set => _monsterSoundClip = value;
+        }
+
         private SoundManager _soundManager;
         private LevelManager _levelManager;
-        public LevelManager LevelManager { set => _levelManager = value; }
+
+        public LevelManager LevelManager
+        {
+            set => _levelManager = value;
+        }
 
         // Start is called before the first frame update
         void Start()
