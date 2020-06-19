@@ -1,0 +1,16 @@
+{
+  "name": "Example level",
+  "map": [{"row": [1, 1, 1, 1, 1, 1]}, {"row": [0, 0, 1, 1, 1, 1]}, {"row": [1, 0, 1, 1, 1, 1]}, {"row": [1, 0, 0, 0, 0, 1]}, {"row": [1, 1, 1, 1, 0, 1]}, {"row": [1, 0, 0, 0, 0, 1]}, {"row": [1, 1, 1, 1, 1, 1]}],
+  "tiles": [
+    {"key": 0, "path": "Tiles/path-tile.png"},
+    {"key": 1, "path": "Tiles/terrain-tile.png"}
+  ],
+  "turrets": ["Quick Scan", "Full Scan", "Firewall"],
+  "enemies": ["Virus", "Bug"],
+  "waves": [
+    {"wave": [{"enemy": "Virus", "amount": 5}]},
+    {"wave": [{"enemy": "Bug", "amount": 5}]},
+    {"wave": [{"enemy": "Virus", "amount": 5}, {"enemy": "Bug", "amount": 3}]}
+  ],
+  "startingMoney": 80
+}

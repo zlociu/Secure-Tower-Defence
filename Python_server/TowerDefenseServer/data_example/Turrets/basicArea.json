@@ -1,0 +1,15 @@
+{
+  "name": "Firewall",
+  "type": "AreaShot",
+  "price": 60,
+  "damage": 10,
+  "fireRate": 0.5,
+  "projectileSpeed": 100,
+  "range": 100.0,
+  "upgrades": [],
+  "baseTexture": "turret-base1.png",
+  "weaponTexture": "turret-red1.png",
+  "projectileTexture": "red-ball.png",
+  "uiTexture": "turret-red1-ui.png",
+  "shootSound": "turret-green.ogg"
+}

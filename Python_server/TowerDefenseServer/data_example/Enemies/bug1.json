@@ -1,0 +1,8 @@
+{
+  "name": "Bug",
+  "hitPoints": 60,
+  "moneyReward": 20,
+  "speed": 60,
+  "texture": "bug.png",
+  "sound": "insect-hit1.ogg"
+}

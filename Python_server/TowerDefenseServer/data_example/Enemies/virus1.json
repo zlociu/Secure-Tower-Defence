@@ -1,0 +1,8 @@
+{
+  "name": "Virus",
+  "hitPoints": 30,
+  "moneyReward": 15,
+  "speed": 80,
+  "texture": "virus.png",
+  "sound": "monster-hit1.ogg"
+}
