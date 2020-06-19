@@ -3,7 +3,6 @@ import os
 import re
 import zipfile
 from datetime import datetime
-from pathlib import Path
 
 import django
 from django.contrib.auth import authenticate, logout, login
@@ -129,47 +128,9 @@ def create_player(request):
 
 # noinspection PyBroadException
 @csrf_exempt
-def map_upload(request):
+def level_download(request):
     """
-    url: /map-upload
-
-    map_array - map array written as positive integers, separated with ";".
-    player_address - field in Player object.
-    :param request: POST {"map": map_array, "path": player_address}
-    :return:
-    {"status": "map successfully loaded"}, status code: 201
-    {"status": "error loading map"}, status code: 400
-    """
-    content_json = json.loads(request.body)
-    map_array = content_json["map"]
-    map_path: str = content_json["path"]
-
-    try:
-        print(map_array)
-
-        if map_path.endswith(".json"):
-            map_path -= ".json"
-
-        Path("data/Levels/").mkdir(parents=True, exist_ok=True)
-        with open(f"data/Levels/{map_path}.json", "w+") as f:
-            f.write(json.dumps({'map': map_array}))
-
-        Level.objects.update_or_create(path=map_path)
-
-        response = JsonResponse({"status": "map successfully loaded"})
-        response.status_code = 201
-    except Exception:
-        response = JsonResponse({"status": "error loading map"})
-        response.status_code = 400
-
-    return response
-
-
-# noinspection PyBroadException
-@csrf_exempt
-def map_download(request):
-    """
-    url: /map-download?name={map_name}
+    url: /level-download?name={map_name}
 
     :param request: GET
     :return:
@@ -210,6 +171,8 @@ def turret_download(request):
         turret_json["weaponTexture"] = "/Buildings/" + turret_json["weaponTexture"]
         turret_json["projectileTexture"] = "/Effects/" + turret_json["projectileTexture"]
         turret_json["uiTexture"] = "/Ui/" + turret_json["uiTexture"]
+        turret_json["shootSound"] = re.search(r".+/Sounds(.+)",
+                                              Sound.objects.get(name=turret_json['shootSound']).path).group(1)
         response = JsonResponse(turret_json)
         response.status_code = 200
     except Exception:
@@ -236,6 +199,7 @@ def enemy_download(request):
         with open(enemy_obj.path, "r") as f:
             enemy_json: dict = json.loads(f.read())
         enemy_json["texture"] = "/Enemies/" + enemy_json['texture']
+        enemy_json["sound"] = re.search(r".+/Sounds(.+)", Sound.objects.get(name=enemy_json['sound']).path).group(1)
         response = JsonResponse(enemy_json)
         response.status_code = 200
     except Exception:
@@ -328,31 +292,33 @@ def submit_update(request):
 
     # Clean undesired files
 
-    g_all = Graphic.objects.all()
-    m_all = Sound.objects.all()
+    for graphic in Graphic.objects.all():
+        if graphic.path not in graphic_files:
+            Graphic.objects.get(path=graphic.path).delete()
 
-    for g in g_all:
-        if g.path not in graphic_files:
-            Graphic.objects.get(path=g.path).delete()
+    for sound in Sound.objects.all():
+        if sound.path not in sound_files:
+            Sound.objects.get(path=sound.path).delete()
 
-    for m in m_all:
-        if m.path not in sound_files:
-            Sound.objects.get(path=m.path).delete()
+    for level in Level.objects.all():
+        if level.path not in level_files:
+            Sound.objects.get(path=level.path).delete()
 
     # Update database
 
     for path in graphic_files:
         graphic_name = path.split("/")[-1].split(".")[0]
-        g, _ = Graphic.objects.update_or_create(name=graphic_name, path=path, build=ver)
-        g.version = ver
+        graphic, _ = Graphic.objects.update_or_create(name=graphic_name, path=path, build=ver)
+        graphic.version = ver
 
     for path in sound_files:
-        sound_name = path.split("/")[-1].split(".")[0]
-        m, _ = Sound.objects.update_or_create(name=sound_name, path=path, build=ver)
-        m.version = ver
+        sound_name = path.split("/")[-1]
+        sound, _ = Sound.objects.update_or_create(name=sound_name, path=path, build=ver)
+        sound.version = ver
 
     for path in level_files:
-        level_name = path.split("/")[-1].split(".")[0]
+        with open(path, 'r') as file:
+            level_name: str = json.loads(file.read())['name']
         level_obj, _ = Level.objects.update_or_create(name=level_name, path=path)
         level_obj.version = ver
 

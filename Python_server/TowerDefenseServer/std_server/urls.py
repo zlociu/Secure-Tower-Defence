@@ -19,8 +19,7 @@ from django.urls import path
 from std_server.views import (
     login_user,
     setup,
-    map_upload,
-    map_download,
+    level_download,
     turret_download,
     enemy_download,
     serve_newest_update,
@@ -40,8 +39,7 @@ urlpatterns = [
     path('setup', setup),
 
     # Map
-    path('map-upload', map_upload),
-    path('map-download', map_download),
+    path('level-download', level_download),
     path('turret-download', turret_download),
     path('enemy-download', enemy_download),
     path('list-maps', list_all_maps),
