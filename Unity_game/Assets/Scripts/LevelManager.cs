@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Models;
+using Assets.Scripts.Models.Fields;
 using Assets.Scripts.Turret;
 using Assets.Scripts.Utils;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Assets.Scripts
@@ -20,14 +22,20 @@ namespace Assets.Scripts
         [SerializeField] private GameObject _lifeUiGroup;
         [SerializeField] private GameObject _lifePrefab;
         [SerializeField] private GameObject _moneyUi;
+        [SerializeField] private GameObject _waveUi;
         private GameObject _waypointsGroup;
         private GameObject _unitsGroup;
         private GameObject _terrainTilesGroup;
         private GameObject _pathTilesGroup;
-        private List<Dictionary<string, int>> _waves;
+
+        private List<Dictionary<string, EnemyWave>> _waves;
+        private Dictionary<string, float> _enemySpawnPeriods;
+        private int _currentWaveNumber = 1;
+        private int _waveCount;
+        private bool _waitForNextWave = false;
 
         private Vector2Int _spawnCoords;
-        public float SpawnPeriod = 2;
+        private float _pausePeriod = 0f;
         public int Money { get; private set; }
 
         private readonly List<List<int>> _tileMap = GlobalVariables.CurrentLevel.MapToList();
@@ -42,42 +50,96 @@ namespace Assets.Scripts
             CreateLevel();
             CreateBase();
             IncreaseMoney(GlobalVariables.CurrentLevel.startingMoney);
+            _waveUi.GetComponent<Text>().text = "Wave " + _currentWaveNumber + "/" + _waveCount;
         }
 
         // Update is called once per frame
         void Update()
         {
-            if (SpawnPeriod > 2f)
+            Debug.Log("waves count " + _waves.Count);
+            Debug.Log("units count " + _unitsGroup.transform.childCount);
+            if (_waves.Count == 0 && _unitsGroup.transform.childCount == 0)
             {
-                if (_waves.Count == 0)
-                {
-                    return;
-                }
-
-                if (_waves.First().Count == 0)
-                {
-                    _waves.RemoveAt(0);
-                    return;
-                }
-
-                string key = _waves.First().Keys.First();
-                if (_waves.First()[key] <= 0)
-                {
-                    _waves.First().Remove(key);
-                    return;
-                }
-
-                SpawnEnemy(key);
-                _waves.First()[key]--;
-                SpawnPeriod = 0f;
+                GlobalVariables.GameResult = "Victory";
+                Time.timeScale = 0;
+                Destroy(gameObject);
+                SceneManager.LoadScene("Scenes/GameResultScene", LoadSceneMode.Additive);
+                return;
             }
 
-            SpawnPeriod += Time.deltaTime;
+            if (_waitForNextWave && _pausePeriod < 5f)
+            {
+                _pausePeriod += Time.deltaTime;
+                return;
+            }
+
+            if (_waitForNextWave)
+            {
+                _pausePeriod = 0f;
+                _enemySpawnPeriods.Clear();
+                foreach (KeyValuePair<string, EnemyWave> keyValue in _waves.First())
+                {
+                    _enemySpawnPeriods.Add(keyValue.Key, keyValue.Value.spawnTime);
+                }
+
+                _waitForNextWave = false;
+                return;
+            }
+
+            if (_waves.First().Count == 0)
+            {
+                _currentWaveNumber++;
+                _waveUi.GetComponent<Text>().text = "Wave " + _currentWaveNumber + "/" + _waveCount;
+                _waves.RemoveAt(0);
+                _waitForNextWave = true;
+                return;
+            }
+
+            _enemySpawnPeriods = _enemySpawnPeriods.ToDictionary(p => p.Key, p => p.Value + Time.deltaTime);
+
+            SpawnEnemies();
+        }
+
+        private void SpawnEnemies()
+        {
+            List<string> keysToReset = new List<string>();
+            List<string> keys = new List<string>();
+            foreach (string key in _waves.First().Keys)
+            {
+                keys.Add(key);
+            }
+
+            foreach (string key in keys)
+            {
+                if (_enemySpawnPeriods[key] >= _waves.First()[key].spawnTime)
+                {
+                    SpawnEnemy(key.Replace("-", ""));
+                    _waves.First()[key].amount--;
+                    if (_waves.First()[key].amount <= 0)
+                    {
+                        _waves.First().Remove(key);
+                    }
+
+                    keysToReset.Add(key);
+                }
+            }
+
+            foreach (string key in keysToReset)
+            {
+                _enemySpawnPeriods[key] = 0f;
+            }
         }
 
         private void SetupVariables()
         {
             _waves = GlobalVariables.CurrentLevel.wavesToDictList();
+            _waveCount = _waves.Count;
+            _enemySpawnPeriods = new Dictionary<string, float>();
+            foreach (string key in _waves.First().Keys)
+            {
+                _enemySpawnPeriods.Add(key, 0);
+            }
+
             SetupTilePrefabs();
 
             _bounds = new Bounds(transform.position, Vector3.one);
@@ -164,7 +226,7 @@ namespace Assets.Scripts
             Debug.Log("The bounds of this model is " + _bounds);
             transform.rotation = currentRotation;
             Camera.main.transform.position = _bounds.center;
-            Camera.main.GetComponent<CameraZoom>().MaxOrtho = _bounds.center.x;
+            Camera.main.GetComponent<CameraZoom>().MaxOrtho = _bounds.center.x * 1.5f;
             Camera.main.GetComponent<CameraZoom>().ApplyOrthoLimits();
             Camera.main.GetComponent<CameraMovement>().Bounds = _bounds;
         }

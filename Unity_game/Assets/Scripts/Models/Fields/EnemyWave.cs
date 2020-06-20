@@ -9,5 +9,6 @@ namespace Assets.Scripts.Models.Fields
     {
         public string enemy;
         public int amount;
+        public float spawnTime;
     }
 }

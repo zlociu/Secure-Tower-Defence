@@ -37,7 +37,7 @@ namespace Assets.Scripts
         {
             if (Hp <= 0)
             {
-                _destroy();
+                _destroy(true);
             }
 
             if (_waypointIndex >= WaypointsGroup.childCount)
@@ -57,10 +57,14 @@ namespace Assets.Scripts
             }
         }
 
-        private void _destroy()
+        private void _destroy(bool reward)
         {
             _soundManager.RemoveAudioSource(gameObject.GetInstanceID());
-            _levelManager.IncreaseMoney(MoneyReward);
+            if (reward)
+            {
+                _levelManager.IncreaseMoney(MoneyReward);
+            }
+
             Destroy(gameObject);
         }
 
@@ -69,7 +73,7 @@ namespace Assets.Scripts
             if (collision.gameObject.name == "base")
             {
                 collision.gameObject.GetComponent<Base>().DecreaseHp(1);
-                _destroy();
+                _destroy(false);
             }
         }
 

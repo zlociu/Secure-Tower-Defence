@@ -10,5 +10,13 @@ namespace Assets.Scripts
         public static TurretHierarchyModel TurretHierarchy;
         public static List<TurretParams> DefaultTurretsParams;
         public static List<EnemyModel> EnemyParams;
+        public static string GameResult = "";
+
+        public static void Reset()
+        {
+            CurrentLevel = null;
+            DefaultTurretsParams = null;
+            EnemyParams = null;
+        }
     }
 }

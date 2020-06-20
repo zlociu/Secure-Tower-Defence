@@ -39,15 +39,25 @@ namespace Assets.Scripts.Models
             return result;
         }
 
-        public List<Dictionary<string, int>> wavesToDictList()
+        public List<Dictionary<string, EnemyWave>> wavesToDictList()
         {
-            List<Dictionary<string, int>> result = new List<Dictionary<string, int>>();
+            List<Dictionary<string, EnemyWave>> result = new List<Dictionary<string, EnemyWave>>();
             foreach (WaveRow waveRow in waves)
             {
-                result.Add(new Dictionary<string, int>());
+                result.Add(new Dictionary<string, EnemyWave>());
                 foreach (EnemyWave enemyWave in waveRow.wave)
                 {
-                    result.Last().Add(enemyWave.enemy, enemyWave.amount);
+                    while (true)
+                    {
+                        if (result.Last().ContainsKey(enemyWave.enemy))
+                        {
+                            enemyWave.enemy += "_";
+                            continue;
+                        }
+
+                        result.Last().Add(enemyWave.enemy, enemyWave);
+                        break;
+                    }
                 }
             }
 

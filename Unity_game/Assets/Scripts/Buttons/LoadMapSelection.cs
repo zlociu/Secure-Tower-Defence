@@ -29,6 +29,8 @@ public class LoadMapSelection : MonoBehaviour, IPointerUpHandler
             {
                 string responseBody = request.downloadHandler.text;
                 LevelModel level = JsonUtility.FromJson<LevelModel>(responseBody);
+                GlobalVariables.Reset();
+                ShowTurretCreationUi.ClearTurretPrefabs();
                 GlobalVariables.CurrentLevel = level;
                 LoadTurretParams(level.turrets);
                 LoadEnemyParams(level.enemies);

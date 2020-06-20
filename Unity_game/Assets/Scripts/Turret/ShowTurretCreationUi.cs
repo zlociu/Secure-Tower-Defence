@@ -73,4 +73,9 @@ public class ShowTurretCreationUi : MonoBehaviour
             _defaultTurretUiPrefabs.Add(prefab);
         }
     }
+
+    public static void ClearTurretPrefabs()
+    {
+        _defaultTurretUiPrefabs.Clear();
+    }
 }

@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/LoginMenuScene.unity
+    guid: 5ac2a158b719ee446b8bad1d6fc7d69a
+  - enabled: 1
     path: Assets/Scenes/MainMenuScene.unity
     guid: cf3c0ac61517d5744908c3a8554ae1f8
   - enabled: 1
@@ -15,12 +18,12 @@ EditorBuildSettings:
     path: Assets/Scenes/PauseMenuScene.unity
     guid: efae6c6d2950f384295b17cba4a3fcfb
   - enabled: 1
-    path: Assets/Scenes/LoginMenuScene.unity
-    guid: 5ac2a158b719ee446b8bad1d6fc7d69a
-  - enabled: 1
     path: Assets/Scenes/RegistrationMenuScene.unity
     guid: 23541a2739071ef4b9b75ec1b74b99b2
   - enabled: 1
     path: Assets/Scenes/MapSelectionMenu.unity
     guid: 2505d462bb674ef4c943cbb5e54bdd18
+  - enabled: 1
+    path: Assets/Scenes/GameResultScene.unity
+    guid: b6c64369bd5c1854e8cf0f44d742f825
   m_configObjects: {}

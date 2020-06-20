@@ -73,7 +73,11 @@ public class LoginButton : MonoBehaviour, IPointerUpHandler
                     }
                 }
 
-                Directory.Delete("data", true);
+                if (Directory.Exists("data"))
+                {
+                    Directory.Delete("data", true);
+                }
+
                 ZipFile.ExtractToDirectory("data.zip", "./");
                 File.Delete("data.zip");
             }

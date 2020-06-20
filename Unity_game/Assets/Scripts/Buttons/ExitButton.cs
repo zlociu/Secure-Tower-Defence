@@ -1,10 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class ExitButton : MonoBehaviour
+public class ExitButton : MonoBehaviour, IPointerUpHandler
 {
-    public void OnMouseUp()
+    public void OnPointerUp(PointerEventData eventData)
     {
         Application.Quit();
     }

@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Assets.Scripts;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Base : MonoBehaviour
 {
@@ -18,7 +20,11 @@ public class Base : MonoBehaviour
     {
         if (_hp == 0)
         {
+            GlobalVariables.GameResult = "Game Over";
+
             Destroy(gameObject);
+            Time.timeScale = 0;
+            SceneManager.LoadScene("Scenes/GameResultScene", LoadSceneMode.Additive);
         }
     }
 
