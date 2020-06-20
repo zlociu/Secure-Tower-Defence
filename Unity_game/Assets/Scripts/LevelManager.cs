@@ -56,8 +56,6 @@ namespace Assets.Scripts
         // Update is called once per frame
         void Update()
         {
-            Debug.Log("waves count " + _waves.Count);
-            Debug.Log("units count " + _unitsGroup.transform.childCount);
             if (_waves.Count == 0 && _unitsGroup.transform.childCount == 0)
             {
                 GlobalVariables.GameResult = "Victory";
