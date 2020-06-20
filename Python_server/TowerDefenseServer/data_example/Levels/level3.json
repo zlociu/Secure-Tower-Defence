@@ -29,29 +29,6 @@
         "wave": [
           {
             "enemy": "Virus",
-            "amount": 5,
-            "spawnTime": 2.0
-          }
-        ]
-      },
-      {
-        "wave": [
-          {
-            "enemy": "Virus",
-            "amount": 4,
-            "spawnTime": 2.0
-          },
-          {
-            "enemy": "Bug",
-            "amount": 1,
-            "spawnTime": 2.0
-          }
-        ]
-      },
-      {
-        "wave": [
-          {
-            "enemy": "Bug",
             "amount": 7,
             "spawnTime": 2.0
           }
@@ -61,13 +38,36 @@
         "wave": [
           {
             "enemy": "Virus",
-            "amount": 6,
+            "amount": 5,
             "spawnTime": 2.0
+          },
+          {
+            "enemy": "Bug",
+            "amount": 2,
+            "spawnTime": 2.0
+          }
+        ]
+      },
+      {
+        "wave": [
+          {
+            "enemy": "Bug",
+            "amount": 8,
+            "spawnTime": 1.5
+          }
+        ]
+      },
+      {
+        "wave": [
+          {
+            "enemy": "Virus",
+            "amount": 8,
+            "spawnTime": 1.5
           },
           {
             "enemy": "Bug",
             "amount": 4,
-            "spawnTime": 2.0
+            "spawnTime": 1.5
           }
         ]
       },
@@ -76,7 +76,7 @@
           {
             "enemy": "Virus",
             "amount": 12,
-            "spawnTime": 2.0
+            "spawnTime": 1.5
           }
         ]
       },
@@ -84,8 +84,8 @@
         "wave": [
           {
             "enemy": "Bug",
-            "amount": 12,
-            "spawnTime": 2.0
+            "amount": 16,
+            "spawnTime": 1.5
           }
         ]
       },
@@ -94,12 +94,12 @@
           {
             "enemy": "Virus",
             "amount": 8,
-            "spawnTime": 2.0
+            "spawnTime": 1.5
           },
           {
             "enemy": "Bug",
             "amount": 8,
-            "spawnTime": 2.0
+            "spawnTime": 1.5
           }
         ]
       },
@@ -108,17 +108,17 @@
           {
             "enemy": "Virus",
             "amount": 10,
-            "spawnTime": 2.0
+            "spawnTime": 1.0
           },
           {
             "enemy": "Bug",
             "amount": 6,
-            "spawnTime": 2.0
+            "spawnTime": 1.0
           },
           {
-            "enemy": "Bug",
-            "amount": 3,
-            "spawnTime": 2.0
+            "enemy": "Virus",
+            "amount": 6,
+            "spawnTime": 1.0
           }
         ]
       },
@@ -127,15 +127,34 @@
           {
             "enemy": "Virus",
             "amount": 14,
-            "spawnTime": 2.0
+            "spawnTime": 1.5
           },
           {
             "enemy": "Bug",
             "amount": 14,
-            "spawnTime": 2.0
+            "spawnTime": 1.5
+          }
+        ]
+      },
+      {
+        "wave": [
+          {
+            "enemy": "Virus",
+            "amount": 12,
+            "spawnTime": 1.0
+          },
+          {
+            "enemy": "Bug",
+            "amount": 12,
+            "spawnTime": 1.0
+          },
+          {
+            "enemy": "Virus",
+            "amount": 10,
+            "spawnTime": 1.0
           }
         ]
       }
     ],
-    "startingMoney": 65
+    "startingMoney": 80
   }

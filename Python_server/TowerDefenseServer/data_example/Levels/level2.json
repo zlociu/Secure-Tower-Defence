@@ -52,7 +52,8 @@
         "wave": [
           {
             "enemy": "Bug",
-            "amount": 5
+            "amount": 5,
+            "spawnTime": 2.0
           }
         ]
       },
@@ -74,7 +75,8 @@
         "wave": [
           {
             "enemy": "Virus",
-            "amount": 10
+            "amount": 10,
+            "spawnTime": 2.0
           }
         ]
       },
@@ -82,7 +84,8 @@
         "wave": [
           {
             "enemy": "Bug",
-            "amount": 10
+            "amount": 10,
+            "spawnTime": 2.0
           }
         ]
       },
@@ -91,12 +94,12 @@
           {
             "enemy": "Virus",
             "amount": 8,
-            "spawnTime": 2.0
+            "spawnTime": 1.5
           },
           {
             "enemy": "Bug",
             "amount": 8,
-            "spawnTime": 2.0
+            "spawnTime": 1.5
           }
         ]
       }
