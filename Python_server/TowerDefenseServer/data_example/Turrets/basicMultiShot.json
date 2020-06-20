@@ -1,7 +1,7 @@
 {
   "name": "Full Scan",
   "type": "MultiShot",
-  "price": 50,
+  "price": 70,
   "damage": 10,
   "fireRate": 0.5,
   "projectileSpeed": 100,
