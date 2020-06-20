@@ -8,9 +8,38 @@
   "turrets": ["Quick Scan", "Full Scan", "Firewall"],
   "enemies": ["Virus", "Bug"],
   "waves": [
-    {"wave": [{"enemy": "Virus", "amount": 5}]},
-    {"wave": [{"enemy": "Bug", "amount": 5}]},
-    {"wave": [{"enemy": "Virus", "amount": 5}, {"enemy": "Bug", "amount": 3}]}
+    {
+      "wave": [
+        {
+          "enemy": "Virus",
+          "amount": 5,
+          "spawnTime": 2.0
+        }
+      ]
+    },
+    {
+      "wave": [
+        {
+          "enemy": "Bug",
+          "amount": 5,
+          "spawnTime": 3.0
+        }
+      ]
+    },
+    {
+      "wave": [
+        {
+          "enemy": "Virus",
+          "amount": 5,
+          "spawnTime": 2.0
+        },
+        {
+          "enemy": "Bug",
+          "amount": 3,
+          "spawnTime": 5.0
+        }
+      ]
+    }
   ],
   "startingMoney": 80
 }
