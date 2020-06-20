@@ -5,7 +5,6 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
-
 # noinspection DuplicatedCode
 class Migration(migrations.Migration):
     initial = True
@@ -38,7 +37,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='MyUser',
+            name='User',
             fields=[
                 ('user_ptr',
                  models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True,
@@ -56,21 +55,11 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Other',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('path', models.CharField(max_length=128, unique=True)),
-                ('build', models.PositiveIntegerField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Test',
+            name='GameBuild',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(default='game', editable=False, max_length=5, unique=True)),
-                ('actual_build', models.PositiveIntegerField()),
+                ('build', models.PositiveIntegerField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
             ],
@@ -96,21 +85,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Player',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('player_address', models.CharField(max_length=128, unique=True)),
-                ('user_address', models.CharField(max_length=128, unique=True)),
-                ('level', models.PositiveIntegerField()),
-                ('points', models.PositiveIntegerField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('identity',
-                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='std_server.MyUser', unique=True,
-                                   verbose_name='user')),
-            ],
-        ),
-        migrations.CreateModel(
             name='Level',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -119,5 +93,5 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
             ],
-        ),
+        )
     ]

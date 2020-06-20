@@ -18,7 +18,6 @@ from django.urls import path
 
 from std_server.views import (
     login_user,
-    setup,
     level_download,
     turret_download,
     enemy_download,
@@ -34,9 +33,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register', register),
     path('login', login_user),
-
-    # User
-    path('setup', setup),
 
     # Map
     path('level-download', level_download),

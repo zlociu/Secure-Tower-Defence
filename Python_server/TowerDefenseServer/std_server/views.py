@@ -11,12 +11,12 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from std_server.models.enemy_model import Enemy
-from std_server.models.graphics_model import Graphic, Sound
+from std_server.models.game_build_model import GameBuild
+from std_server.models.graphics_model import Graphic
 from std_server.models.level_model import Level
-from std_server.models.player_model import Player
-from std_server.models.setter_model import Test
+from std_server.models.sounds_model import Sound
 from std_server.models.turret_model import Turret
-from std_server.models.user_model import MyUser
+from std_server.models.user_model import User
 
 
 @csrf_exempt
@@ -27,10 +27,10 @@ def register(request):
     print(username)
     print(passwd)
 
-    game_build = Test.objects.get(name="game").actual_build
+    game_build = GameBuild.objects.get(name="game").build
 
     try:
-        MyUser.objects.create_user(username=username, password=passwd, game_build=game_build)
+        User.objects.create_user(username=username, password=passwd, game_build=game_build)
         response = JsonResponse({"User": "Created"})
         response.status_code = 201
         print("register OK")
@@ -59,71 +59,6 @@ def login_user(request):
 
 def logout_view(request):
     logout(request)
-
-
-# noinspection PyBroadException
-def setup(request):
-    """
-    url: /setup
-    :param request: GET
-    Run to setup database with default data
-    """
-
-    try:
-        Test.objects.create(actual_build=0)
-
-        MyUser.objects.create(username="test_user_1", password="admin", game_build=0)
-
-        user = MyUser.objects.get(username="test_user_1")
-
-        Player.objects.create(identity=user,
-                              user_address="user_address_1",
-                              player_address="player_address_1",
-                              level=0,
-                              points=0)
-
-        Player.objects.get(user_address="user_address_1")
-
-        response = JsonResponse({"success": True})
-    except Exception:
-        response = JsonResponse({"success": False})
-
-    return response
-
-
-def update_stats(request):
-    identity = request.POST['player']
-    new_level = request.POST['level']
-
-    status = Player.objects.filter(identity=identity).update(level=new_level)
-
-    if status:
-        response = JsonResponse({"Player": "Error"})
-        response.status_code = 403
-    else:
-        response = JsonResponse({"Player": f"new level: {new_level}"})
-        response.status_code = 200
-
-    return response
-
-
-def create_player(request):
-    """
-    Constructor
-    # id = unique number, will be public key
-    # login = user's name
-    # password = password hashed with SHA256
-    """
-
-    identity = request.POST['identity']
-    player_address = request.POST['player_address']
-    user_address = request.POST['user_address']
-
-    Player.objects.get_or_create(
-        identity=identity,
-        player_address=player_address,
-        user_address=user_address
-    )
 
 
 # noinspection PyBroadException
@@ -253,7 +188,12 @@ def submit_update(request):
     :return:
     {"update": "ok"}, status code 200
     """
-    t = Test.objects.get(name="game")
+    try:
+        game_build = GameBuild.objects.get(name="game")
+    except Exception:
+        GameBuild.objects.create(build=0)
+        game_build = GameBuild.objects.get(name="game")
+
     date = datetime.now()
 
     _, _, r1, r2, _, m1, m2, _, d1, d2, *_ = str(date)
@@ -264,9 +204,9 @@ def submit_update(request):
 
     print(build)
 
-    t.actual_build = ver = build
+    game_build.build = ver = build
 
-    t.save()
+    game_build.save()
 
     graphic_files = []
     sound_files = []
@@ -351,9 +291,9 @@ def serve_newest_update(request):
 
     version = int(request.GET.get('version', '-1'))
 
-    actual_build = Test.objects.get(name="game").actual_build
+    build = GameBuild.objects.get(name="game").build
 
-    if version >= actual_build:
+    if version >= build:
         response = JsonResponse({"status": "up-to-date"})
         response.status_code = 200
     else:
@@ -362,7 +302,7 @@ def serve_newest_update(request):
         all_graphic = Graphic.objects.all()
         all_music = Sound.objects.all()
 
-        zip_name = f"update_{actual_build}.zip"
+        zip_name = f"update_{build}.zip"
 
         [files.append(b.path) for b in all_graphic if b.build > version]
         [files.append(b.path) for b in all_music if b.build > version]
@@ -370,7 +310,7 @@ def serve_newest_update(request):
         print(files)
 
         response = HttpResponse(content_type='application/zip')
-        response.set_cookie("build", actual_build)
+        response.set_cookie("build", build)
 
         print(response.cookies['build'])
 

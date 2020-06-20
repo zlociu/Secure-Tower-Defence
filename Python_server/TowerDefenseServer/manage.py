@@ -4,6 +4,7 @@ import os
 import sys
 
 
+# noinspection PyBroadException
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'std_server.settings')
     try:
