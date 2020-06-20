@@ -5,7 +5,7 @@
   "damage": 10,
   "fireRate": 0.75,
   "projectileSpeed": 100,
-  "range": 80.0,
+  "range": 60.0,
   "upgrades": [],
   "baseTexture": "turret-base1.png",
   "weaponTexture": "turret-green1.png",

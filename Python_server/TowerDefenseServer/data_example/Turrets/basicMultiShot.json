@@ -1,11 +1,11 @@
 {
   "name": "Full Scan",
   "type": "MultiShot",
-  "price": 70,
+  "price": 120,
   "damage": 10,
   "fireRate": 0.5,
   "projectileSpeed": 100,
-  "range": 100.0,
+  "range": 75.0,
   "upgrades": [],
   "baseTexture": "turret-base1.png",
   "weaponTexture": "turret-orange1.png",
