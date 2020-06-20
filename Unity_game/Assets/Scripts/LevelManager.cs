@@ -100,31 +100,18 @@ namespace Assets.Scripts
 
         private void SpawnEnemies()
         {
-            List<string> keysToReset = new List<string>();
-            List<string> keys = new List<string>();
-            foreach (string key in _waves.First().Keys)
-            {
-                keys.Add(key);
-            }
-
-            foreach (string key in keys)
+            foreach (string key in _waves.First().Keys.ToList())
             {
                 if (_enemySpawnPeriods[key] >= _waves.First()[key].spawnTime)
                 {
-                    SpawnEnemy(key.Replace("-", ""));
+                    SpawnEnemy(key.Replace("_", ""));
                     _waves.First()[key].amount--;
                     if (_waves.First()[key].amount <= 0)
                     {
                         _waves.First().Remove(key);
                     }
-
-                    keysToReset.Add(key);
+                    _enemySpawnPeriods[key] = 0f;
                 }
-            }
-
-            foreach (string key in keysToReset)
-            {
-                _enemySpawnPeriods[key] = 0f;
             }
         }
 
