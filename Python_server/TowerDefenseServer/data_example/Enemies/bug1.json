@@ -1,6 +1,6 @@
 {
   "name": "Bug",
-  "hitPoints": 60,
+  "hitPoints": 75,
   "moneyReward": 20,
   "speed": 60,
   "texture": "bug.png",

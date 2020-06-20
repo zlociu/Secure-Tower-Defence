@@ -1,7 +1,7 @@
 {
   "name": "Firewall",
   "type": "AreaShot",
-  "price": 300,
+  "price": 350,
   "damage": 25,
   "fireRate": 0.75,
   "projectileSpeed": 100,

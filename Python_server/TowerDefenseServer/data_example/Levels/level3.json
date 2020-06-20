@@ -76,7 +76,7 @@
           {
             "enemy": "Virus",
             "amount": 12,
-            "spawnTime": 1.5
+            "spawnTime": 0.75
           }
         ]
       },
