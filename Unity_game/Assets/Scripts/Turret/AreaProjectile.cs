@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Assets.Scripts;
+﻿using Assets.Scripts;
 using UnityEngine;
 
 public class AreaProjectile : MonoBehaviour
@@ -9,7 +8,7 @@ public class AreaProjectile : MonoBehaviour
 
     public int Speed = 100;
     public int Damage = 10;
-    public int Range = 30;
+    public int Range = 10;
 
     // Start is called before the first frame update
     void Start()
@@ -35,6 +34,11 @@ public class AreaProjectile : MonoBehaviour
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision == null)
+        {
+            return;
+        }
+
+        if (TargetUnit == null)
         {
             return;
         }

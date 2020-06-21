@@ -40,7 +40,8 @@ namespace Assets.Scripts.Models
                 WeaponTexture = weaponTexture,
                 ProjectileTexture = projectileTexture,
                 UiTexture = uiTexture,
-                ShootSound = shootSound
+                ShootSound = shootSound,
+                Upgrades = upgrades
             };
         }
     }

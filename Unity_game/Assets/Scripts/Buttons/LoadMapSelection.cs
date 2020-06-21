@@ -30,18 +30,18 @@ public class LoadMapSelection : MonoBehaviour, IPointerUpHandler
                 string responseBody = request.downloadHandler.text;
                 LevelModel level = JsonUtility.FromJson<LevelModel>(responseBody);
                 GlobalVariables.Reset();
-                ShowTurretCreationUi.ClearTurretPrefabs();
                 GlobalVariables.CurrentLevel = level;
-                LoadTurretParams(level.turrets);
+                LoadDefaultTurretParams(level.turrets);
+                LoadAllTurretParams();
                 LoadEnemyParams(level.enemies);
+                MusicManager.PlayBattleMusic();
                 SceneManager.LoadScene("Scenes/GameScene", LoadSceneMode.Single);
             }
         }
     }
 
-    private void LoadTurretParams(List<string> turretNames)
+    private void LoadDefaultTurretParams(List<string> turretNames)
     {
-        GlobalVariables.DefaultTurretsParams = new List<TurretParams>();
         foreach (string turretName in turretNames)
         {
             using (UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:8000/turret-download?name=" + turretName))
@@ -49,7 +49,7 @@ public class LoadMapSelection : MonoBehaviour, IPointerUpHandler
                 request.SendWebRequest();
                 while (!request.isDone)
                 {
-                    new WaitForSeconds(0.5f);
+                    new WaitForSeconds(0.1f);
                 }
 
                 if (request.isNetworkError || request.isHttpError)
@@ -61,6 +61,40 @@ public class LoadMapSelection : MonoBehaviour, IPointerUpHandler
                     string responseBody = request.downloadHandler.text;
                     TurretModel model = JsonUtility.FromJson<TurretModel>(responseBody);
                     GlobalVariables.DefaultTurretsParams.Add(model.ToTurretParams());
+                    GlobalVariables.AllTurretParams.Add(model.name, model.ToTurretParams());
+                }
+            }
+        }
+    }
+
+    private void LoadAllTurretParams()
+    {
+        foreach (TurretParams defaultTurretParams in GlobalVariables.DefaultTurretsParams)
+        {
+            foreach (string turretName in defaultTurretParams.Upgrades)
+            {
+                if (GlobalVariables.AllTurretParams.ContainsKey(turretName))
+                {
+                    return;
+                }
+                using (UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:8000/turret-download?name=" + turretName))
+                {
+                    request.SendWebRequest();
+                    while (!request.isDone)
+                    {
+                        new WaitForSeconds(0.1f);
+                    }
+
+                    if (request.isNetworkError || request.isHttpError)
+                    {
+                        Debug.Log(request.error);
+                    }
+                    else
+                    {
+                        string responseBody = request.downloadHandler.text;
+                        TurretModel model = JsonUtility.FromJson<TurretModel>(responseBody);
+                        GlobalVariables.AllTurretParams.Add(model.name, model.ToTurretParams());
+                    }
                 }
             }
         }
@@ -76,7 +110,7 @@ public class LoadMapSelection : MonoBehaviour, IPointerUpHandler
                 request.SendWebRequest();
                 while (!request.isDone)
                 {
-                    new WaitForSeconds(0.5f);
+                    new WaitForSeconds(0.1f);
                 }
 
                 if (request.isNetworkError || request.isHttpError)

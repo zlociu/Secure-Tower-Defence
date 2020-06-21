@@ -12,7 +12,7 @@ namespace Assets.Scripts
         public int MoneyReward = 10;
         [SerializeField] private AudioClip _monsterSoundClip;
 
-        public AudioClip MonsterSoundClip
+        public AudioClip HitSound
         {
             set => _monsterSoundClip = value;
         }

@@ -20,7 +20,7 @@ namespace Assets.Scripts.Turret
         public int ProjectileSpeed;
         public float Range;
 
-        public List<TurretParams> Upgrades;
+        public List<string> Upgrades;
         public string BaseTexture;
         public string WeaponTexture;
         public string ProjectileTexture;

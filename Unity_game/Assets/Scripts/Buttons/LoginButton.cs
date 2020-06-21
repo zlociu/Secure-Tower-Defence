@@ -35,6 +35,8 @@ public class LoginButton : MonoBehaviour, IPointerUpHandler
         if (request.responseCode == 201)
         {
             DownloadData();
+            MusicManager.LoadAllMusicClips();
+            MusicManager.PlayMenuMusic();
             SceneManager.LoadScene("Scenes/MainMenuScene", LoadSceneMode.Single);
         }
     }

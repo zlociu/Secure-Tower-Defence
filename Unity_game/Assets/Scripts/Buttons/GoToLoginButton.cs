@@ -8,6 +8,7 @@ public class GoToLoginButton : MonoBehaviour, IPointerUpHandler
 {
     public void OnPointerUp(PointerEventData eventData)
     {
+        MusicManager.Stop();
         SceneManager.LoadScene("Scenes/LoginMenuScene", LoadSceneMode.Single);
     }
 }

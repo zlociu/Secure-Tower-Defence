@@ -11,6 +11,7 @@ public class LoadMapList : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        MusicManager.PlayMenuMusic();
         using (UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:8000/list-maps"))
         {
             request.SendWebRequest();
@@ -29,7 +30,6 @@ public class LoadMapList : MonoBehaviour
                 LevelListModel levelList = JsonUtility.FromJson<LevelListModel>(responseBody);
                 foreach (string mapName in levelList.maps)
                 {
-                    Debug.Log(mapName);
                     GameObject viewItem = Instantiate(_viewItemPrefab);
                     viewItem.transform.SetParent(_scrollViewContent.transform);
                     viewItem.GetComponentInChildren<Text>().text = mapName;

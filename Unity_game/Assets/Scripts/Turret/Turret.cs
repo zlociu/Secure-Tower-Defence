@@ -6,32 +6,45 @@ using UnityEngine;
 public class Turret : MonoBehaviour
 {
     public GameObject UnitsGroup;
-    public GameObject ProjectilePrefab;
     public TurretParams Params;
 
     [SerializeField] private GameObject _turretRangePrefab;
-    public AudioClip ShotSoundClip;
+    private GameObject _projectilePrefab;
     private GameObject _turretRange;
     private SoundManager _soundManager;
+    private PrefabManager _prefabManager;
 
     private float _spawnPeriod;
 
     // Start is called before the first frame update
     void Start()
     {
+        _prefabManager = FindObjectOfType<PrefabManager>();
+        _projectilePrefab = _prefabManager.GetProjectilePrefab(Params);
         _soundManager = FindObjectOfType<SoundManager>();
-        _soundManager.AddAudioSource(gameObject.GetInstanceID(), ShotSoundClip);
-        SetupProjectile();
+        AudioClip shotSoundClip = ResourceUtil.LoadSound(Params.ShootSound);
+        _soundManager.AddAudioSource(gameObject.GetInstanceID(), shotSoundClip);
     }
 
     // Update is called once per frame
     void Update()
     {
+        Transform closestEnemy = GetClosestEnemy();
+        if (closestEnemy == null)
+        {
+            return;
+        }
+
+        Vector2 dir = closestEnemy.position - transform.position;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+
         if (_spawnPeriod > Params.FireRate)
         {
             if (SpawnProjectile())
             {
                 _spawnPeriod = 0f;
+                _soundManager.PlaySound(gameObject.GetInstanceID());
             }
         }
         else
@@ -42,7 +55,6 @@ public class Turret : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        Debug.Log("show range");
         _turretRange = SpawnObject(
             Instantiate(_turretRangePrefab),
             "range"
@@ -52,17 +64,6 @@ public class Turret : MonoBehaviour
         _turretRange.transform.SetParent(transform);
     }
 
-    private void SetupProjectile()
-    {
-        GameObject prefabs = new GameObject("projectile_prefabs");
-        ProjectilePrefab = Instantiate(ProjectilePrefab);
-        ProjectilePrefab.GetComponent<SpriteRenderer>().sprite =
-            ResourceUtil.LoadSprite(Params.ProjectileTexture);
-        ProjectilePrefab.SetActive(false);
-        ProjectilePrefab.name = "prefab_" + Params.Name;
-        ProjectilePrefab.transform.parent = prefabs.transform;
-    }
-
     private void OnMouseExit()
     {
         Destroy(_turretRange);
@@ -70,23 +71,26 @@ public class Turret : MonoBehaviour
 
     private bool SpawnProjectile()
     {
-        if (Params.Type == TurretType.SingleShot)
+        switch (Params.Type)
         {
-            Transform closestUnit = GetClosestUnit();
-            return SpawnProjectile(closestUnit);
+            case TurretType.SingleShot:
+            {
+                Transform closestUnit = GetClosestEnemy();
+                return SpawnProjectile(closestUnit);
+            }
+            case TurretType.MultiShot:
+            {
+                List<Transform> closestUnits = GetClosestEnemies(3);
+                return SpawnProjectile(closestUnits);
+            }
+            case TurretType.AreaShot:
+            {
+                Transform closestUnit = GetClosestEnemy();
+                return SpawnAreaProjectile(closestUnit);
+            }
+            default:
+                return false;
         }
-        else if (Params.Type == TurretType.MultiShot)
-        {
-            List<Transform> closestUnits = GetClosestUnits(3);
-            return SpawnProjectile(closestUnits);
-        }
-        else if (Params.Type == TurretType.AreaShot)
-        {
-            Transform closestUnit = GetClosestUnit();
-            return SpawnAreaProjectile(closestUnit);
-        }
-
-        return false;
     }
 
     private bool SpawnProjectile(List<Transform> closestUnits)
@@ -112,21 +116,16 @@ public class Turret : MonoBehaviour
         }
 
         GameObject projectile = SpawnObject(
-            Instantiate(ProjectilePrefab),
-            "projectile"
+            Instantiate(_projectilePrefab),
+            "projectile " + Params.Name
         );
         projectile.SetActive(true);
-        projectile.transform.SetParent(transform);
 
         Projectile projectileScript = projectile.AddComponent<Projectile>();
         projectileScript.Speed = Params.ProjectileSpeed;
         projectileScript.Damage = Params.Damage;
         projectileScript.TargetUnit = closestUnit;
 
-        Vector2 dir = closestUnit.position - transform.position;
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-        _soundManager.PlaySound(gameObject.GetInstanceID());
         return true;
     }
 
@@ -138,8 +137,8 @@ public class Turret : MonoBehaviour
         }
 
         GameObject projectile = SpawnObject(
-            Instantiate(ProjectilePrefab),
-            "projectile"
+            Instantiate(_projectilePrefab),
+            "projectile " + Params.Name
         );
         projectile.SetActive(true);
         projectile.transform.SetParent(transform);
@@ -158,50 +157,59 @@ public class Turret : MonoBehaviour
         return true;
     }
 
-    private Transform GetClosestUnit()
+    private Transform GetClosestEnemy()
     {
-        List<Transform> closestUnits = GetClosestUnits(1);
-        if (closestUnits == null || closestUnits.Count == 0)
+        Transform closestEnemy = null;
+        float closestEnemyDistance = float.MaxValue;
+        for (int childIndex = 0; childIndex < UnitsGroup.transform.childCount; childIndex++)
         {
-            return null;
+            Transform enemy = UnitsGroup.transform.GetChild(childIndex);
+            float enemyDistance = Vector2.Distance(transform.position, enemy.position);
+            if (enemyDistance > Params.Range)
+            {
+                continue;
+            }
+
+            if (enemyDistance < closestEnemyDistance)
+            {
+                closestEnemy = enemy;
+            }
         }
-        else
-        {
-            return closestUnits[0];
-        }
+
+        return closestEnemy;
     }
 
-    private List<Transform> GetClosestUnits(int amount)
+    private List<Transform> GetClosestEnemies(int amount)
     {
         if (UnitsGroup.transform.childCount == 0)
         {
             return null;
         }
 
-        List<Transform> closestUnits = new List<Transform>();
+        List<Transform> closestEnemies = new List<Transform>();
 
         for (int childIndex = 0; childIndex < UnitsGroup.transform.childCount; childIndex++)
         {
-            Transform unit = UnitsGroup.transform.GetChild(childIndex);
-            float unitDistance = Vector2.Distance(transform.position, unit.position);
+            Transform enemy = UnitsGroup.transform.GetChild(childIndex);
+            float enemyDistance = Vector2.Distance(transform.position, enemy.position);
 
-            if (unitDistance > Params.Range)
+            if (enemyDistance > Params.Range)
             {
                 continue;
             }
 
-            if (closestUnits.Count < amount)
+            if (closestEnemies.Count < amount)
             {
-                closestUnits.Add(unit);
+                closestEnemies.Add(enemy);
                 continue;
             }
 
             int indexToReplace = -1;
             float previousDistanceDifference = 0;
-            for (int i = 0; i < closestUnits.Count; i++)
+            for (int i = 0; i < closestEnemies.Count; i++)
             {
                 float distanceDifference =
-                    unitDistance - Vector2.Distance(transform.position, closestUnits[i].position);
+                    enemyDistance - Vector2.Distance(transform.position, closestEnemies[i].position);
                 if (distanceDifference > previousDistanceDifference)
                 {
                     indexToReplace = i;
@@ -211,11 +219,11 @@ public class Turret : MonoBehaviour
 
             if (indexToReplace != -1)
             {
-                closestUnits[indexToReplace] = unit;
+                closestEnemies[indexToReplace] = enemy;
             }
         }
 
-        return closestUnits;
+        return closestEnemies;
     }
 
     private GameObject SpawnObject(GameObject gameObject1, string name1)

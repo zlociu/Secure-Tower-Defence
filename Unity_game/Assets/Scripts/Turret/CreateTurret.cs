@@ -1,17 +1,19 @@
 ﻿using Assets.Scripts;
 using Assets.Scripts.Turret;
-using Assets.Scripts.Utils;
 using UnityEngine;
 
 public class CreateTurret : MonoBehaviour
 {
-    [SerializeField] private GameObject _turretBasePrefab;
-    public GameObject TurretWeaponPrefab;
+    private PrefabManager _prefabManager;
     public static GameObject UnitsGroup;
     public static LevelManager LevelManagerVar;
     public Transform BuildTile;
     public TurretParams Params;
-    public AudioClip ShootSound;
+
+    private void Start()
+    {
+        _prefabManager = FindObjectOfType<PrefabManager>();
+    }
 
     private void OnMouseDown()
     {
@@ -24,27 +26,41 @@ public class CreateTurret : MonoBehaviour
 
     private void _createTurret()
     {
+        if (BuildTile.childCount > 0)
+        {
+            Debug.Log("Destroying existing turret");
+            for (int i = BuildTile.childCount; i > 0; i--)
+            {
+                Destroy(BuildTile.GetChild(0).gameObject);
+            }
+        }
+        FindObjectOfType<SoundManager>().PlayButtonSound();
+
         Debug.Log("Creating turret");
-        GameObject turretWeapon = Instantiate(TurretWeaponPrefab);
+        GameObject turretWeapon = Instantiate(_prefabManager.GetTurretWeaponPrefab(Params));
         turretWeapon.transform.position = new Vector3(BuildTile.position.x, BuildTile.position.y, -3);
         turretWeapon.GetComponent<Turret>().UnitsGroup = UnitsGroup;
-        turretWeapon.GetComponent<Turret>().Params = Params;
         turretWeapon.transform.parent = BuildTile;
-        turretWeapon.GetComponent<SpriteRenderer>().sprite =
-            ResourceUtil.LoadSprite(Params.WeaponTexture);
-        turretWeapon.GetComponent<Turret>().ShotSoundClip =
-            ResourceUtil.LoadSound(Params.ShootSound);
+        turretWeapon.GetComponent<Turret>().Params = Params;
+        turretWeapon.SetActive(true);
 
-        GameObject turretBase = Instantiate(_turretBasePrefab);
+        GameObject turretBase = Instantiate(_prefabManager.GetTurretBasePrefab(Params));
         turretBase.transform.position = new Vector3(BuildTile.position.x, BuildTile.position.y, -2);
         turretBase.transform.parent = BuildTile;
-        turretBase.GetComponent<SpriteRenderer>().sprite =
-            ResourceUtil.LoadSprite(Params.BaseTexture);
+        turretBase.SetActive(true);
 
         Debug.Log("Turret created at " + BuildTile.position);
         Destroy(BuildTile.GetComponent<Rigidbody2D>());
         Destroy(BuildTile.GetComponent<BoxCollider2D>());
         Destroy(BuildTile.GetComponent<ShowTurretCreationUi>());
         ShowTurretCreationUi.ClearTurretUi();
+
+        if (Params.Upgrades.Count == 0)
+        {
+            return;
+        }
+
+        ShowTurretCreationUi showUi = turretWeapon.AddComponent<ShowTurretCreationUi>();
+        showUi.SetupUpgradePrefabs(Params, BuildTile);
     }
 }
