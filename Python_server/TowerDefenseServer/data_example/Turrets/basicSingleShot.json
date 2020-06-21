@@ -6,7 +6,9 @@
   "fireRate": 0.75,
   "projectileSpeed": 100,
   "range": 60.0,
-  "upgrades": [],
+  "upgrades": [
+    "Very Quick Scan"
+  ],
   "baseTexture": "turret-base1.png",
   "weaponTexture": "turret-green1.png",
   "projectileTexture": "green-ball.png",

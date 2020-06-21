@@ -159,8 +159,6 @@ def serve_new_instance(request):
     filenames = []
     zipfile_name = "zip_z_plikami"
 
-    print("XDDDDDDD")
-
     for f in files.all():
         filenames.append(f.path)
 
@@ -174,6 +172,7 @@ def serve_new_instance(request):
     return response
 
 
+# noinspection PyBroadException
 def submit_update(request):
     """
     ! Used only by administrator.
@@ -199,20 +198,18 @@ def submit_update(request):
     _, _, r1, r2, _, m1, m2, _, d1, d2, *_ = str(date)
 
     build = ""
-
     build = build + r1 + r2 + m1 + m2 + d1 + d2
 
     print(build)
 
     game_build.build = ver = build
-
     game_build.save()
 
     graphic_files = []
     sound_files = []
     level_files = []
     turret_files = []
-    enemies_files = []
+    enemy_files = []
 
     # List all files
     for root, dirs, paths in os.walk(os.getcwd() + os.path.sep + "data"):
@@ -228,51 +225,54 @@ def submit_update(request):
             elif "turrets" in root.lower():
                 turret_files.append(file_path)
             elif "enemies" in root.lower():
-                enemies_files.append(file_path)
+                enemy_files.append(file_path)
 
-    # Clean undesired files
+    def clean_undesired_files(db_objects, file_list: list):
+        for db_object in db_objects.all():
+            if db_object.path not in file_list:
+                db_objects.get(path=db_object.path).delete()
 
-    for graphic in Graphic.objects.all():
-        if graphic.path not in graphic_files:
-            Graphic.objects.get(path=graphic.path).delete()
+    # noinspection PyTypeChecker
+    clean_undesired_files(Graphic.objects, graphic_files)
+    # noinspection PyTypeChecker
+    clean_undesired_files(Sound.objects, sound_files)
+    # noinspection PyTypeChecker
+    clean_undesired_files(Level.objects, level_files)
+    # noinspection PyTypeChecker
+    clean_undesired_files(Turret.objects, turret_files)
+    # noinspection PyTypeChecker
+    clean_undesired_files(Enemy.objects, enemy_files)
 
-    for sound in Sound.objects.all():
-        if sound.path not in sound_files:
-            Sound.objects.get(path=sound.path).delete()
+    def update_resource_files(file_list: list, db_objects):
+        for path in file_list:
+            resource_name = path.split("/")[-1]
+            for db_object in db_objects.all():
+                if db_object.path == path and db_object.name != resource_name:
+                    db_objects.get(path=path).delete()
+            db_object, _ = db_objects.update_or_create(name=resource_name, path=path)
+            db_object.version = ver
 
-    for level in Level.objects.all():
-        if level.path not in level_files:
-            Sound.objects.get(path=level.path).delete()
+    # noinspection PyTypeChecker
+    update_resource_files(graphic_files, Graphic.objects)
+    # noinspection PyTypeChecker
+    update_resource_files(sound_files, Sound.objects)
 
-    # Update database
+    def update_json_documents(file_list: list, db_objects):
+        for path in file_list:
+            with open(path, 'r') as file:
+                resource_name: str = json.loads(file.read())['name']
+            for db_object in db_objects.all():
+                if db_object.path == path and db_object.name != resource_name:
+                    db_objects.get(path=path).delete()
+            db_object, _ = db_objects.update_or_create(name=resource_name, path=path)
+            db_object.version = ver
 
-    for path in graphic_files:
-        graphic_name = path.split("/")[-1].split(".")[0]
-        graphic, _ = Graphic.objects.update_or_create(name=graphic_name, path=path, build=ver)
-        graphic.version = ver
-
-    for path in sound_files:
-        sound_name = path.split("/")[-1]
-        sound, _ = Sound.objects.update_or_create(name=sound_name, path=path, build=ver)
-        sound.version = ver
-
-    for path in level_files:
-        with open(path, 'r') as file:
-            level_name: str = json.loads(file.read())['name']
-        level_obj, _ = Level.objects.update_or_create(name=level_name, path=path)
-        level_obj.version = ver
-
-    for path in turret_files:
-        with open(path, 'r') as file:
-            turret_name: str = json.loads(file.read())['name']
-        turret_obj, _ = Turret.objects.update_or_create(name=turret_name, path=path)
-        turret_obj.version = ver
-
-    for path in enemies_files:
-        with open(path, 'r') as file:
-            enemy_name: str = json.loads(file.read())['name']
-        enemy_obj, _ = Enemy.objects.update_or_create(name=enemy_name, path=path)
-        enemy_obj.version = ver
+    # noinspection PyTypeChecker
+    update_json_documents(level_files, Level.objects)
+    # noinspection PyTypeChecker
+    update_json_documents(turret_files, Turret.objects)
+    # noinspection PyTypeChecker
+    update_json_documents(enemy_files, Enemy.objects)
 
     response = JsonResponse({"update": "ok"})
     response.status_code = 200
@@ -332,6 +332,7 @@ def list_all_maps(request):
     for m in maps:
         map_list.append(m.name)
 
+    map_list.sort()
     response = JsonResponse({"maps": map_list})
     response.status_code = 200
 

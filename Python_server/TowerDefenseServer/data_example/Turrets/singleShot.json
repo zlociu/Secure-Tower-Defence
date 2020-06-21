@@ -1,0 +1,15 @@
+{
+  "name": "Very Quick Scan",
+  "type": "SingleShot",
+  "price": 70,
+  "damage": 15,
+  "fireRate": 0.5,
+  "projectileSpeed": 100,
+  "range": 80.0,
+  "upgrades": [],
+  "baseTexture": "turret-base1.png",
+  "weaponTexture": "turret-green1.png",
+  "projectileTexture": "green-ball.png",
+  "uiTexture": "turret-green1-ui.png",
+  "shootSound": "turret-green.ogg"
+}
