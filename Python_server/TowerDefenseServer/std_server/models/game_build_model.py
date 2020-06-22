@@ -5,7 +5,7 @@ from django.db import models
 
 class GameBuild(models.Model):
     name = models.CharField(max_length=5, default="game", editable=False, unique=True)
-    build = models.PositiveIntegerField()
+    version = models.PositiveIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

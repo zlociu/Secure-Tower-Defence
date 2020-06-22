@@ -49,16 +49,16 @@ def request_update():
 
     _, _, r1, r2, _, m1, m2, _, d1, d2, *_ = str(date)
 
-    build = ""
+    version = ""
 
-    build = build + r1 + r2 + m1 + m2 + d1 + d2
+    version = version + r1 + r2 + m1 + m2 + d1 + d2
 
-    response = requests.get(f"{url}?version={build}", stream=True)
+    response = requests.get(f"{url}?version={version}", stream=True)
 
     try:
-        new_build = response.cookies['build']
+        new_version = response.cookies['version']
 
-        path = f"client_files/update_{new_build}.zip"
+        path = f"client_files/update_{new_version}.zip"
         dst_path = "client_files/files"
 
         handle = open(path, "wb")
@@ -67,7 +67,7 @@ def request_update():
                 handle.write(chunk)
         handle.close()
 
-        print(new_build)
+        print(new_version)
 
         with ZipFile(path, "r") as zip_file:
             zip_file.extractall(dst_path)

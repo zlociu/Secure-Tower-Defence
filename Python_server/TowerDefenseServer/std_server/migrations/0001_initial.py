@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ('user_ptr',
                  models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True,
                                       primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
-                ('game_build', models.PositiveIntegerField()),
+                ('version', models.PositiveIntegerField(default=0)),
             ],
             options={
                 'verbose_name': 'user',
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(default='game', editable=False, max_length=5, unique=True)),
-                ('build', models.PositiveIntegerField()),
+                ('version', models.PositiveIntegerField(default=0)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
             ],

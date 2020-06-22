@@ -21,11 +21,11 @@ from std_server.views import (
     level_download,
     turret_download,
     enemy_download,
-    serve_newest_update,
+    serve_update,
     submit_update,
     serve_new_instance,
     register,
-    list_all_maps
+    list_all_maps, map_current_data
 )
 
 urlpatterns = [
@@ -42,6 +42,7 @@ urlpatterns = [
 
     # Updates
     path('download-full-game', serve_new_instance),
+    path('map-current-data', map_current_data),
     path('submit-update', submit_update),
-    path('request-update', serve_newest_update),
+    path('request-update', serve_update),
 ]

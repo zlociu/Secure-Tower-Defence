@@ -1,8 +1,9 @@
 import json
 import os
 import re
+import shutil
+import time
 import zipfile
-from datetime import datetime
 
 import django
 from django.contrib.auth import authenticate, logout, login
@@ -27,10 +28,10 @@ def register(request):
     print(username)
     print(passwd)
 
-    game_build = GameBuild.objects.get(name="game").build
+    game_build = GameBuild.objects.get(name="game").version
 
     try:
-        User.objects.create_user(username=username, password=passwd, game_build=game_build)
+        User.objects.create_user(username=username, password=passwd, version=game_build)
         response = JsonResponse({"User": "Created"})
         response.status_code = 201
         print("register OK")
@@ -48,10 +49,11 @@ def login_user(request):
     user = authenticate(request, username=username, password=password)
     if user is not None:
         login(request, user)
-        response = JsonResponse({"User": "Logged"})
+        version = GameBuild.objects.get(name="game").version
+        response = JsonResponse({"status": "logged", "version": version})
         response.status_code = 201
     else:
-        response = JsonResponse({"User": "Invalid login"})
+        response = JsonResponse({"status": "invalid login"})
         response.status_code = 401
 
     return response
@@ -173,7 +175,7 @@ def serve_new_instance(request):
 
 
 # noinspection PyBroadException
-def submit_update(request):
+def map_current_data(request):
     """
     ! Used only by administrator.
     Loading all files from path to database.
@@ -190,19 +192,14 @@ def submit_update(request):
     try:
         game_build = GameBuild.objects.get(name="game")
     except Exception:
-        GameBuild.objects.create(build=0)
+        GameBuild.objects.create(version=0)
         game_build = GameBuild.objects.get(name="game")
 
-    date = datetime.now()
+    version = int(round(time.time()))
 
-    _, _, r1, r2, _, m1, m2, _, d1, d2, *_ = str(date)
+    print("Current versions {}".format(version))
 
-    build = ""
-    build = build + r1 + r2 + m1 + m2 + d1 + d2
-
-    print(build)
-
-    game_build.build = ver = build
+    game_build.version = version
     game_build.save()
 
     graphic_files = []
@@ -227,6 +224,109 @@ def submit_update(request):
             elif "enemies" in root.lower():
                 enemy_files.append(file_path)
 
+    def update_resource_files(file_list: list, db_objects):
+        for path in file_list:
+            resource_name: str = path.split("/")[-1]
+            resource_exists = False
+            for db_object in db_objects.all():
+                if db_object.path == path and db_object.name == resource_name:
+                    resource_exists = True
+                    break
+            if not resource_exists:
+                db_object, _ = db_objects.update_or_create(name=resource_name, path=path)
+                db_object.version = version
+                db_object.save()
+
+    # noinspection PyTypeChecker
+    update_resource_files(graphic_files, Graphic.objects)
+    # noinspection PyTypeChecker
+    update_resource_files(sound_files, Sound.objects)
+
+    def update_json_documents(file_list: list, db_objects):
+        for path in file_list:
+            with open(path, 'r') as file:
+                resource_name: str = json.loads(file.read())['name']
+            resource_exists = False
+            for db_object in db_objects.all():
+                if db_object.path == path and db_object.name != resource_name:
+                    resource_exists = True
+                    break
+            if not resource_exists:
+                db_object, _ = db_objects.update_or_create(name=resource_name, path=path)
+                db_object.version = version
+                db_object.save()
+
+    # noinspection PyTypeChecker
+    update_json_documents(level_files, Level.objects)
+    # noinspection PyTypeChecker
+    update_json_documents(turret_files, Turret.objects)
+    # noinspection PyTypeChecker
+    update_json_documents(enemy_files, Enemy.objects)
+
+    response = JsonResponse({"status": "ok", "version": version})
+    response.status_code = 200
+
+    return response
+
+
+# noinspection PyBroadException
+def submit_update(request):
+    """
+    ! Used only by administrator.
+    Loading all files from path to database.
+    {path} = "TowerDefense\\Packages"
+    Method, that updates game files.
+
+    url: /submit-update
+
+    :param request: GET
+    ver = version number : positive integer
+    :return:
+    {"update": "ok"}, status code 200
+    """
+    try:
+        game_build = GameBuild.objects.get(name="game")
+    except Exception:
+        GameBuild.objects.create(version=0)
+        game_build = GameBuild.objects.get(name="game")
+
+    version = int(round(time.time()))
+
+    print("Current versions {}".format(version))
+
+    game_build.version = version
+    game_build.save()
+
+    graphic_files = []
+    sound_files = []
+    level_files = []
+    turret_files = []
+    enemy_files = []
+    all_files = []
+
+    # List all files
+    for root, dirs, paths in os.walk(os.getcwd() + os.path.sep + "staging_data"):
+        for path in paths:
+            file_path: str = os.path.join(root, path).replace("\\", "/")
+            file_path = "." + re.search(r".+(/staging_data.+)", file_path).group(1)
+            all_files.append(file_path)
+            file_path = file_path.replace("staging_data", "data")
+            if "sprites" in root.lower():
+                graphic_files.append(file_path)
+            elif "sounds" in root.lower():
+                sound_files.append(file_path)
+            elif "levels" in root.lower():
+                level_files.append(file_path)
+            elif "turrets" in root.lower():
+                turret_files.append(file_path)
+            elif "enemies" in root.lower():
+                enemy_files.append(file_path)
+
+    if len(all_files) == 0:
+        response = JsonResponse({"status": "no change", "version": version})
+        response.status_code = 200
+        return response
+
     def clean_undesired_files(db_objects, file_list: list):
         for db_object in db_objects.all():
             if db_object.path not in file_list:
@@ -250,7 +350,8 @@ def submit_update(request):
                 if db_object.path == path and db_object.name != resource_name:
                     db_objects.get(path=path).delete()
             db_object, _ = db_objects.update_or_create(name=resource_name, path=path)
-            db_object.version = ver
+            db_object.version = version
+            db_object.save()
 
     # noinspection PyTypeChecker
     update_resource_files(graphic_files, Graphic.objects)
@@ -259,13 +360,14 @@ def submit_update(request):
 
     def update_json_documents(file_list: list, db_objects):
         for path in file_list:
-            with open(path, 'r') as file:
+            with open(path.replace("data", "staging_data"), 'r') as file:
                 resource_name: str = json.loads(file.read())['name']
             for db_object in db_objects.all():
                 if db_object.path == path and db_object.name != resource_name:
                     db_objects.get(path=path).delete()
             db_object, _ = db_objects.update_or_create(name=resource_name, path=path)
-            db_object.version = ver
+            db_object.version = version
+            db_object.save()
 
     # noinspection PyTypeChecker
     update_json_documents(level_files, Level.objects)
@@ -274,13 +376,19 @@ def submit_update(request):
     # noinspection PyTypeChecker
     update_json_documents(enemy_files, Enemy.objects)
 
-    response = JsonResponse({"update": "ok"})
+    for file_path in all_files:
+        data_file_path = file_path.replace("staging_data", "data")
+        os.makedirs(os.path.dirname(data_file_path), exist_ok=True)
+        shutil.copyfile(file_path, data_file_path)
+        os.remove(file_path)
+
+    response = JsonResponse({"status": "ok", "version": version})
     response.status_code = 200
 
     return response
 
 
-def serve_newest_update(request):
+def serve_update(request):
     """
     user_identity - unique user id.
     System for updating game files.
@@ -291,28 +399,25 @@ def serve_newest_update(request):
 
     version = int(request.GET.get('version', '-1'))
 
-    build = GameBuild.objects.get(name="game").build
+    current_version = GameBuild.objects.get(name="game").version
 
-    if version >= build:
+    if version >= current_version:
         response = JsonResponse({"status": "up-to-date"})
         response.status_code = 200
     else:
         files = []
 
         all_graphic = Graphic.objects.all()
-        all_music = Sound.objects.all()
+        all_sounds = Sound.objects.all()
 
-        zip_name = f"update_{build}.zip"
+        zip_name = f"update_{current_version}.zip"
 
-        [files.append(b.path) for b in all_graphic if b.version > version]
-        [files.append(b.path) for b in all_music if b.version > version]
+        [files.append(db_object.path) for db_object in all_graphic if db_object.version > version]
+        [files.append(db_object.path) for db_object in all_sounds if db_object.version > version]
 
         print(files)
 
         response = HttpResponse(content_type='application/zip')
-        response.set_cookie("build", build)
-
-        print(response.cookies['build'])
 
         zip_file = zipfile.ZipFile(response, 'w')
         for filename in files:
