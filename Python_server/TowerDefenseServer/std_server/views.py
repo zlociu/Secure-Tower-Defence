@@ -304,8 +304,8 @@ def serve_newest_update(request):
 
         zip_name = f"update_{build}.zip"
 
-        [files.append(b.path) for b in all_graphic if b.build > version]
-        [files.append(b.path) for b in all_music if b.build > version]
+        [files.append(b.path) for b in all_graphic if b.version > version]
+        [files.append(b.path) for b in all_music if b.version > version]
 
         print(files)
 
