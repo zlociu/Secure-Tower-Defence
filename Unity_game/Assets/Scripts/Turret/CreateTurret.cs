@@ -1,14 +1,28 @@
 ﻿using Assets.Scripts;
 using Assets.Scripts.Turret;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CreateTurret : MonoBehaviour
 {
-    private PrefabManager _prefabManager;
+    [SerializeField] private Text _priceText;
+
     public static GameObject UnitsGroup;
     public static LevelManager LevelManagerVar;
     public Transform BuildTile;
-    public TurretParams Params;
+    private TurretParams _params;
+
+    public TurretParams Params
+    {
+        set
+        {
+            _params = value;
+            _priceText.text = _params.Price.ToString();
+        }
+        get => _params;
+    }
+
+    private PrefabManager _prefabManager;
 
     private void Start()
     {
@@ -34,6 +48,7 @@ public class CreateTurret : MonoBehaviour
                 Destroy(BuildTile.GetChild(0).gameObject);
             }
         }
+
         FindObjectOfType<SoundManager>().PlayButtonSound();
 
         Debug.Log("Creating turret");

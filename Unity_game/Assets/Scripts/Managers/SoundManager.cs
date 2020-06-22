@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
-    private static Dictionary<int, AudioSource> _audioSources;
-    private static List<int> _audioSourcesToDelete;
+    private Dictionary<int, AudioSource> _audioSources;
+    private List<int> _audioSourcesToDelete;
     [SerializeField] private AudioSource _buttonSound;
     [SerializeField] private AudioSource _baseExplosionSound;
     [SerializeField] private AudioSource _baseDamageSound;

@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using Assets.Scripts;
+using Assets.Scripts.Models;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
@@ -34,14 +35,17 @@ public class LoginButton : MonoBehaviour, IPointerUpHandler
 
         if (request.responseCode == 201)
         {
-            DownloadData();
+            string responseBody = request.downloadHandler.text;
+            LoginResponseModel level = JsonUtility.FromJson<LoginResponseModel>(responseBody);
+
+            DownloadData(level.version);
             MusicManager.LoadAllMusicClips();
             MusicManager.PlayMenuMusic();
             SceneManager.LoadScene("Scenes/MainMenuScene", LoadSceneMode.Single);
         }
     }
 
-    private void DownloadData()
+    private void DownloadData(long newVersion)
     {
         using (UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:8000/request-update"))
         {
@@ -82,6 +86,7 @@ public class LoginButton : MonoBehaviour, IPointerUpHandler
 
                 ZipFile.ExtractToDirectory("data.zip", "./");
                 File.Delete("data.zip");
+                GlobalVariables.Version = newVersion;
             }
         }
     }

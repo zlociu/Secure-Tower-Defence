@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.Models;
 using Assets.Scripts.Turret;
+using UnityEngine;
 
 namespace Assets.Scripts
 {
@@ -11,6 +12,11 @@ namespace Assets.Scripts
         public static Dictionary<string, TurretParams> AllTurretParams = new Dictionary<string, TurretParams>();
         public static List<EnemyModel> EnemyParams = new List<EnemyModel>();
         public static string GameResult = "";
+        public static long Version
+        {
+            set => PlayerPrefs.SetString("version", value.ToString());
+            get => long.Parse(PlayerPrefs.GetString("version", "0"));
+        }
 
         public static void Reset()
         {

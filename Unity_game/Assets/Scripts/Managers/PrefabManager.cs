@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Assets.Scripts;
 using Assets.Scripts.Models;
 using Assets.Scripts.Turret;
@@ -132,7 +131,6 @@ public class PrefabManager : MonoBehaviour
     {
         return _tilePrefabs[tileNumber];
     }
-
 
     private GameObject CopyPrefab(GameObject prefab, string prefabName, string texturePath)
     {
