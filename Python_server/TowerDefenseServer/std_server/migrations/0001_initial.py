@@ -20,9 +20,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=128, unique=True)),
                 ('path', models.CharField(max_length=128, unique=True)),
-                ('build', models.PositiveIntegerField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
+                ('version', models.PositiveIntegerField(default=0)),
             ],
         ),
         migrations.CreateModel(
@@ -31,9 +31,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=128, unique=True)),
                 ('path', models.CharField(max_length=128, unique=True)),
-                ('build', models.PositiveIntegerField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
+                ('version', models.PositiveIntegerField(default=0)),
             ],
         ),
         migrations.CreateModel(
@@ -72,6 +72,7 @@ class Migration(migrations.Migration):
                 ('path', models.CharField(max_length=128, unique=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
+                ('version', models.PositiveIntegerField(default=0)),
             ],
         ),
         migrations.CreateModel(
@@ -82,6 +83,7 @@ class Migration(migrations.Migration):
                 ('path', models.CharField(max_length=128, unique=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
+                ('version', models.PositiveIntegerField(default=0)),
             ],
         ),
         migrations.CreateModel(
@@ -92,6 +94,7 @@ class Migration(migrations.Migration):
                 ('path', models.CharField(max_length=128, unique=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
+                ('version', models.PositiveIntegerField(default=0)),
             ],
         )
     ]
