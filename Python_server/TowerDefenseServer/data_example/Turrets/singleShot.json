@@ -8,8 +8,8 @@
   "range": 60.0,
   "upgrades": [],
   "baseTexture": "turret-base1.png",
-  "weaponTexture": "turret-green1.png",
+  "weaponTexture": "turret-green2.png",
   "projectileTexture": "green-ball.png",
-  "uiTexture": "turret-green1-ui.png",
+  "uiTexture": "turret-green2-ui.png",
   "shootSound": "turret-green.ogg"
 }

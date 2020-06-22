@@ -1,15 +1,15 @@
 {
-    "name": "Very Full Scan",
-    "type": "MultiShot",
-    "price": 250,
-    "damage": 10,
-    "fireRate": 0.4,
-    "projectileSpeed": 100,
-    "range": 90.0,
-    "upgrades": [],
-    "baseTexture": "turret-base1.png",
-    "weaponTexture": "turret-orange1.png",
-    "projectileTexture": "orange-ball.png",
-    "uiTexture": "turret-orange1-ui.png",
-    "shootSound": "turret-green.ogg"
-  }
+  "name": "Very Full Scan",
+  "type": "MultiShot",
+  "price": 250,
+  "damage": 10,
+  "fireRate": 0.4,
+  "projectileSpeed": 100,
+  "range": 90.0,
+  "upgrades": [],
+  "baseTexture": "turret-base1.png",
+  "weaponTexture": "turret-orange2.png",
+  "projectileTexture": "orange-ball.png",
+  "uiTexture": "turret-orange2-ui.png",
+  "shootSound": "turret-green.ogg"
+}

@@ -327,22 +327,6 @@ def submit_update(request):
         response.status_code = 200
         return response
 
-    def clean_undesired_files(db_objects, file_list: list):
-        for db_object in db_objects.all():
-            if db_object.path not in file_list:
-                db_objects.get(path=db_object.path).delete()
-
-    # noinspection PyTypeChecker
-    clean_undesired_files(Graphic.objects, graphic_files)
-    # noinspection PyTypeChecker
-    clean_undesired_files(Sound.objects, sound_files)
-    # noinspection PyTypeChecker
-    clean_undesired_files(Level.objects, level_files)
-    # noinspection PyTypeChecker
-    clean_undesired_files(Turret.objects, turret_files)
-    # noinspection PyTypeChecker
-    clean_undesired_files(Enemy.objects, enemy_files)
-
     def update_resource_files(file_list: list, db_objects):
         for path in file_list:
             resource_name = path.split("/")[-1]
