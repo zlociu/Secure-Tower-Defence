@@ -1,4 +1,4 @@
-# TowerDefenceBlockchain
+# Secure Tower Defense
 
 ## Overview
 
